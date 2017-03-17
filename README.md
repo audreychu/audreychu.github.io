@@ -1,7 +1,7 @@
 ## Welcome to Audrey's Data Science Portfolio
 
 ### About Me
-<div>
+<div class="section group">
 <div class="col span_2_left">
     <img src="https://media.licdn.com/media/AAEAAQAAAAAAAAlNAAAAJDc2MDc4Y2M5LWQ2ZjgtNDQ4MS04MTI5LWY3NzYwZDc2NzJkYg.jpg" width="200" alt="hi" class="inline"/>
     </div>
