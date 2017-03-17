@@ -1,7 +1,7 @@
 ## Welcome to Audrey's Data Science Portfolio
 
 ### About Me
-
+<div>
 <div class="col span_2_left">
     <img src="https://media.licdn.com/media/AAEAAQAAAAAAAAlNAAAAJDc2MDc4Y2M5LWQ2ZjgtNDQ4MS04MTI5LWY3NzYwZDc2NzJkYg.jpg" width="200" alt="hi" class="inline"/>
     </div>
@@ -17,6 +17,7 @@ Having returned to Davis to finish her studies, Audrey also returns to her on-ca
 In her free time, Audrey enjoys practicing Vinyasa yoga and watching documentaries. She is an avid coffee drinker; actually, she is sort of a coffee addict. She also tries to take advantage of the west coast weather as much as possible.
 
 </p>
+</div>
 </div>
 
 [LinkedIn](https://www.linkedin.com/in/audreychu/)
