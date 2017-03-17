@@ -1,11 +1,10 @@
 ## Welcome to Audrey's Data Science Portfolio
 
 ### About Me
-<div class="section group">
-  <div class="col span_2_left">
-      <img src="https://media.licdn.com/media/AAEAAQAAAAAAAAlNAAAAJDc2MDc4Y2M5LWQ2ZjgtNDQ4MS04MTI5LWY3NzYwZDc2NzJkYg.jpg" width="200" alt="hi" class="inline"/>
-  </div>
 
+<img src="https://media.licdn.com/media/AAEAAQAAAAAAAAlNAAAAJDc2MDc4Y2M5LWQ2ZjgtNDQ4MS04MTI5LWY3NzYwZDc2NzJkYg.jpg" width="200" alt="hi" class="inline"/>
+
+<p>
 Audrey is a New Jersey native pursuing a Bachelor of Arts in Applied Statistics and a Bachelor of Science in Managerial Economics at the University of California, Davis. After graduation this June, she hopes to integrate her acquired STEM and business knowledge in the actuarial sciences industry. An [actuary](http://www.beanactuary.org/what/), as she first learned of the career in 2014, is a business professional who analyzes the financial consequences of risk. They use mathematics and statistical theory to study uncertain future events, especially those of concern to insurance. Audrey took her first step towards the actuarial path when she passed her first actuarial exam (Exam 1/Probability) in September 2015.
 
 During the summer after her junior year of college, Audrey worked at the headquarters of Liberty Mutual Insurance in Boston, Massachusetts as an actuarial intern. There, she learned an incredible amount about the career as well as strengthened her technical and analytic problem-solving skills. Upon completing her internship, Audrey was offered a full-time job in Liberty Mutual’s Actuarial Development Program in Boston or Seattle. She is currently deciding between Liberty Mutual and another potential employer.
@@ -13,7 +12,7 @@ During the summer after her junior year of college, Audrey worked at the headqua
 Having returned to Davis to finish her studies, Audrey also returns to her on-campus job as an Admissions Student Assistant at the UC Davis Graduate School of Management. There, she works on data and application vetting for MBA, MS Professional Accounting, and MS Business Analytics candidates. Additionally, she is currently studying for her second actuarial exam (Exam 2/Financial Mathematics) and will sit for the exam in December 2016.
 
 In her free time, Audrey enjoys practicing Vinyasa yoga and watching documentaries. She is an avid coffee drinker; actually, she is sort of a coffee addict. She also tries to take advantage of the west coast weather as much as possible.
-
+</p>
 
 [LinkedIn](https://www.linkedin.com/in/audreychu/)
 
