@@ -1,14 +1,14 @@
 ## Let's connect!
 [LinkedIn](https://www.linkedin.com/in/audreychu/) | [Email](audreychu27@gmail.com) | [Github](https://github.com/audreychu)
 
-
+----
 
 <center>
 <h2>Final Grades of Students in Secondary School</h2>
 <h3>Data Visualization and Regression Analysis</h3>
 <b>Statistical Data Science</b> - December 2016
 
-<img width=40 src="https://www.r-project.org/logo/Rlogo.png"><br>
+![](https://www.r-project.org/logo/Rlogo.png)<br>
 </center>
 
 
