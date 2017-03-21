@@ -1,8 +1,5 @@
-## Let's connect!
-[LinkedIn](https://www.linkedin.com/in/audreychu/) | [Email](audreychu27@gmail.com) | [Github](https://github.com/audreychu)
-
+# Python Markdown Test with Assignment 1
 ----
-
 ## Part 1: The Doomsday Algorithm
 
 The Doomsday algorithm, devised by mathematician J. H. Conway, computes the day of the week any given date fell on. The algorithm is designed to be simple enough to memorize and use for mental calculation.
