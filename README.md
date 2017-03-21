@@ -1,971 +1,175 @@
-# Python Markdown Test with Assignment 1
+# Python Markdown Test 3/20
 ----
-## Part 1: The Doomsday Algorithm
 
-The Doomsday algorithm, devised by mathematician J. H. Conway, computes the day of the week any given date fell on. The algorithm is designed to be simple enough to memorize and use for mental calculation.
+# NASDAQ Stock Indices
 
-__Example.__ With the algorithm, we can compute that July 4, 1776 (the day the United States declared independence from Great Britain) was a Thursday.
+#### March 2017
+<u>Statistics 141B:</u> Data and Web Technologies<br>
+<u>Contributors:</u> Jeremy Weidner, Weizhou Wang, Audrey Chu, and Yuji Mori
 
-The algorithm is based on the fact that for any year, several dates always fall on the same day of the week, called the <em style="color:#F00">doomsday</em> for the year. These dates include 4/4, 6/6, 8/8, 10/10, and 12/12.
+### I. Abstract
 
-__Example.__ The doomsday for 2016 is Monday, so in 2016 the dates above all fell on Mondays. The doomsday for 2017 is Tuesday, so in 2017 the dates above will all fall on Tuesdays.
+To study NASDAQ stock prices for the technology, finance, health care, and energy industry sectors across time.  With the application of python and utilization of the Yahoo! Finance API, Yahoo Query Language (YQL), and New York Times API, we will gather and clean out a dataset for a time period of ten years for approximately 1770 companies.  Our data will incorporate the closing prices for each day and then average these prices for each respective sector.  In analyzing the stock prices, we will use interactive data visualization as well as attempt to create a time series ARIMA (Autoregressive Integrated Moving Average) model.
 
-The doomsday algorithm has three major steps:
-
-1. Compute the anchor day for the target century.
-2. Compute the doomsday for the target year based on the anchor day.
-3. Determine the day of week for the target date by counting the number of days to the nearest doomsday.
-
-Each step is explained in detail below.
-
-### The Anchor Day
-
-The doomsday for the first year in a century is called the <em style="color:#F00">anchor day</em> for that century. The anchor day is needed to compute the doomsday for any other year in that century. The anchor day for a century $c$ can be computed with the formula:
-$$
-a = \bigl( 5 (c \bmod 4) + 2 \bigr) \bmod 7
-$$
-The result $a$ corresponds to a day of the week, starting with $0$ for Sunday and ending with $6$ for Saturday.
-
-__Note.__ The modulo operation $(x \bmod y)$ finds the remainder after dividing $x$ by $y$. For instance, $12 \bmod 3 = 0$ since the remainder after dividing $12$ by $3$ is $0$. Similarly, $11 \bmod 7 = 4$, since the remainder after dividing $11$ by $7$ is $4$.
-
-__Example.__ Suppose the target year is 1954, so the century is $c = 19$. Plugging this into the formula gives
-$$a = \bigl( 5 (19 \bmod 4) + 2 \bigr) \bmod 7 = \bigl( 5(3) + 2 \bigr) \bmod 7 = 3.$$
-In other words, the anchor day for 1900-1999 is Wednesday, which is also the doomsday for 1900.
-
-__Exercise 1.1.__ Write a function that accepts a year as input and computes the anchor day for that year's century. The modulo operator `%` and functions in the `math` module may be useful. Document your function with a docstring and test your function for a few different years.  Do this in a new cell below this one.
+### II. Questions of Interest
+- How do stock prices differ among industry sectors?
+- Can we explain unusual trends in past prices by relating them to major historical events?
+- Which month for which sector has the least volatility?
 
 
 ```python
-year = 1954
-```
-
-
-```python
-"""
-This function computes the anchor day for any year (input).
-"""
-
-def anchor(year):
-    year = str(year)
-    cent = int(year[0:2])
-    """cent searches for the century"""
-    a = (5*(cent%4) + 2)%7
-    return a
-```
-
-
-```python
-anchor(year)
-```
-
-
-
-
-    3
-
-
-
-
-```python
-anchor(1994)
-```
-
-
-
-
-    3
-
-
-
-
-```python
-anchor(2003)
-```
-
-
-
-
-    2
-
-
-
-### The Doomsday
-
-Once the anchor day is known, let $y$ be the last two digits of the target year. Then the doomsday for the target year can be computed with the formula:
-$$d = \left(y + \left\lfloor\frac{y}{4}\right\rfloor + a\right) \bmod 7$$
-The result $d$ corresponds to a day of the week.
-
-__Note.__ The floor operation $\lfloor x \rfloor$ rounds $x$ down to the nearest integer. For instance, $\lfloor 3.1 \rfloor = 3$ and $\lfloor 3.8 \rfloor = 3$.
-
-__Example.__ Again suppose the target year is 1954. Then the anchor day is $a = 3$, and $y = 54$, so the formula gives
-$$
-d = \left(54 + \left\lfloor\frac{54}{4}\right\rfloor + 3\right) \bmod 7 = (54 + 13 + 3) \bmod 7 = 0.
-$$
-Thus the doomsday for 1954 is Sunday.
-
-__Exercise 1.2.__ Write a function that accepts a year as input and computes the doomsday for that year. Your function may need to call the function you wrote in exercise 1.1. Make sure to document and test your function.
-
-
-```python
-"""
-Doomsday function accepts the year and returns the doomsday for that year.
-"""
-
-def doomsday(year):
-    year = str(year)
-    y = int(year[-2:])
-    """y is the last two digits of target year"""
-    a = anchor(year)
-    """Calls earlier definied anchor function"""
-    d = (y + (y/4) + a)%7
-    return d
-```
-
-
-```python
-doomsday(1990)
-```
-
-
-
-
-    3
-
-
-
-
-```python
-doomsday(1954)
-```
-
-
-
-
-    0
-
-
-
-### The Day of Week
-
-The final step in the Doomsday algorithm is to count the number of days between the target date and a nearby doomsday, modulo 7. This gives the day of the week.
-
-Every month has at least one doomsday:
-* (regular years) 1/10, 2/28
-* (leap years) 1/11, 2/29
-* 3/21, 4/4, 5/9, 6/6, 7/11, 8/8, 9/5, 10/10, 11/7, 12/12
-
-__Example.__ Suppose we want to find the day of the week for 7/21/1954. The doomsday for 1954 is Sunday, and a nearby doomsday is 7/11. There are 10 days in July between 7/11 and 7/21. Since $10 \bmod 7 = 3$, the date 7/21/1954 falls 3 days after a Sunday, on a Wednesday.
-
-__Exercise 1.3.__ Write a function to determine the day of the week for a given day, month, and year. Be careful of leap years! Your function should return a string such as "Thursday" rather than a number. As usual, document and test your code.
-
-
-```python
-day = 5
-month = 3
-year = 2004
-```
-
-
-```python
-"""
-leap_year function determines if year is a leap year.  Leap years are divisible by four.
-"""
-def leap_year(year):
-    year2 = str(year)
-    y = year2[-2:]
-    if (year%4 == 0):
-        if (y == '00' and year%400 == 0):
-            det_leap = 'leap'
-        elif (y == '00' and year%400 !=0):
-            det_leap = 'regular'
-        else:
-            det_leap = 'leap'
-    else:
-        det_leap = 'regular'
-        
-    return det_leap
-
-```
-
-
-```python
-
-```
-
-
-```python
-"""
-dayofweek function inputs day, month, and year variables and returns the day of the 
-week for given date.  Uses doomsday algorithm as a foundation and incorporates leap
-years.
-"""
-
-def dayofweek (day, month, year):
-
-    """Determines if leap year"""
-    d = leap_year(year)
-
-    """Below matrices are doomsday dates for corresponding month by index"""
-    dooms_reg = [10,28,21,4,9,6,11,8,5,10,7,12]
-    dooms_leap = [11,29,21,4,9,6,11,8,5,10,7,12]
-    day_name = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
-    
-    if (d == 'regular'):
-        close = dooms_reg[month-1]
-    elif (d == 'leap'):
-        close = dooms_leap[month-1]
-        
-    """Btwn calculates the number of days between doomsday and input day"""
-    btwn = day - close
-    
-    if btwn > 0:
-        day_index = btwn%7 + doomsday(year)
-        day_index = day_index%7
-
-    else: 
-        day_index =  doomsday(year)- -btwn%7
-        day_index = day_index%7
-
-    return (day_name[day_index])
-```
-
-
-```python
-dayofweek(day,month,year)
-```
-
-
-
-
-    'Friday'
-
-
-
-
-```python
-dayofweek(21,7,1954)
-```
-
-
-
-
-    'Wednesday'
-
-
-
-__Exercise 1.4.__ How many times did Friday the 13th occur in the years 1900-1999? Does this number seem to be similar to other centuries?
-
-
-```python
-day = 13
-month_range = range(1,13)
-year_range = range(1900,2000)
-```
-
-
-```python
-"""
-fri function reads in day, month range (which will fixed) as well as
-range of years.  Functions counts the number of Friday the 23th occurences
-and thus the true input that will change is year_range.
-"""
-
-
-def fri(day, month_range, year_range):
-    """Starts with empty array to append into"""
-    tester = []
-    for x in year_range:        
-
-        for i in month_range:
-    
-            """Checks if leap year"""
-            year2 = str(year)
-            y = year2[-2:]
-            if (year%4 == 0):
-                if (y == '00' and year%400 == 0):
-                    det_leap = 'leap'
-                elif (y == '00' and year%400 !=0):
-                    det_leap = 'regular'
-                else:
-                    det_leap = 'leap'
-            else:
-                det_leap = 'regular'
-    
-            dooms_reg = [10,28,21,4,9,6,11,8,5,10,7,12]
-            dooms_leap = [11,29,21,4,9,6,11,8,5,10,7,12]
-            day_name = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
-        
-            """Finds closest doomsday depending on leap year and month"""
-            if (det_leap == 'regular'):
-                close = dooms_reg[i-1]
-            else:
-                close = dooms_leap[i-1]
-                
-            """Distance between days.  Positive means day is after doomsday.  Divide by 7 for week."""    
-            btwn = day - close
-            if btwn > 0:
-                day_index = btwn%7 + doomsday(x)
-                day_index = day_index%7
-            else: 
-                day_index = doomsday(x) - -btwn%7
-                day_index = day_index%7
-            if (day_name[day_index] == 'Friday' and day == 13 ):
-                """Appends into tester dataframe to count rows"""
-                tester.append(i)
-    numrows = len(tester)    # 3 rows in your example
-    return numrows
-```
-
-
-```python
-fri(day, month_range, range(1900,2000))
-```
-
-
-
-
-    172
-
-
-
-
-```python
-fri(day, month_range, range(1800,1900))
-```
-
-
-
-
-    171
-
-
-
-
-```python
-fri(day, month_range, range(1700,1800))
-```
-
-
-
-
-    172
-
-
-
-
-```python
-fri(day, month_range, range(1600,1700))
-```
-
-
-
-
-    172
-
-
-
-<i>We see that the occurences of Friday the 13ths are similar among varying centuries.</i>
-
-__Exercise 1.5.__ How many times did Friday the 13th occur between the year 2000 and today?
-
-
-```python
+import sys
+import csv
+import json
+import requests
+import requests_cache
+import numpy as np
+import pandas as pd
+#from yahoo_finance import Share
+from pprint import pprint 
+from datetime import datetime
+import matplotlib.pyplot as plt
+import math
+
+import matplotlib as mpl
+%matplotlib inline
+
+import seaborn as sns
+sns.set_style('white', {"xtick.major.size": 2, "ytick.major.size": 2})
+flatui = ["#9b59b6", "#3498db", "#95a5a6", "#e74c3c", "#34495e", "#2ecc71","#f4cae4"]
+sns.set_palette(sns.color_palette(flatui,7))
+
+import missingno as msno
+
+#this is for time series
+from  __future__ import print_function
+from scipy import stats
+import statsmodels.api as sm
+from statsmodels.graphics.api import qqplot
+
+#this is for plotting the prices
+import plotly
+plotly.tools.set_credentials_file(username="audchu",api_key="fPSZjEJ6wqYjzolZ8wNI")
+import plotly.plotly as py
+import plotly.graph_objs as go
+from datetime import datetime
+from pandas_datareader import data,wb
+
+#this is for streaming plot
+from plotly.grid_objs import Grid,Column
 import time
 ```
 
 
 ```python
-day = 13
-month_range = range(1,13)
-year_range = range(2000,(2001+int(time.strftime("%y"))))
+requests_cache.install_cache('cache')
 ```
 
 
 ```python
-fri(day, month_range, year_range)
+# Yahoo! YQL API
+PUBLIC_API_URL = 'https://query.yahooapis.com/v1/public/yql'
+OAUTH_API_URL = 'https://query.yahooapis.com/v1/yql'
+DATATABLES_URL = 'store://datatables.org/alltableswithkeys'
+
+def myreq(ticker, start, end):
+    '''
+    input ticker & dates as strings form 'YYYY-MM-DD'
+    '''
+    params = {'format':'json',
+             'env':DATATABLES_URL}
+    query = 'select * from yahoo.finance.historicaldata where symbol = "{}" and startDate = "{}" and endDate = "{}"'.format(ticker,start, end)
+    params.update({'q':query})
+    req = requests.get(PUBLIC_API_URL, params=params)
+    req.raise_for_status()
+    req = req.json()
+    if req['query']['count'] > 0:
+        result = req['query']['results']['quote']
+        return result
+    else:
+        pass
 ```
-
-
-
-
-    30
-
-
-
-## Part 2: 1978 Birthdays
-
-__Exercise 2.1.__ The file `birthdays.txt` contains the number of births in the United States for each day in 1978. Inspect the file to determine the format. Note that columns are separated by the tab character, which can be entered in Python as `\t`. Write a function that uses iterators and list comprehensions with the string methods `split()` and `strip()` to  convert each line of data to the list format
-
-```Python
-[month, day, year, count]
-```
-The elements of this list should be integers, not strings. The function `read_birthdays` provided below will help you load the file.
 
 
 ```python
-file_path = "/Users/audreychu/Documents/4th Year/STA141B/birthdays.txt"
-```
-
-
-```python
-def read_birthdays(file_path):
-    """Read the contents of the birthdays file into a string.
-    
-    Arguments:
-        file_path (string): The path to the birthdays file.
-        
-    Returns:
-        string: The contents of the birthdays file.
+def price2(ticker):
     """
-    with open(file_path) as file:
-        return file.read()
+    Return closing prices for stocks from years 2006 to 2016.
+    """
+    
+    date=[]
+    price=[]
+    report = []
+    
+    years = [2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016]
+    for x in range(len(years)):
+        c = myreq(ticker,'{}-01-01'.format(years[x]),'{}-12-31'.format(years[x]))
+        try:
+        
+            for i in range(0,len(c)):
+                date.append(pd.to_datetime(c[i]["Date"]))
+                price.append(float(c[i][u'Close']))
+                datef = pd.DataFrame(date)
+                pricef = pd.DataFrame(price)
+                table1 = pd.concat([datef,pricef],axis = 1)
+                table1.columns = ['Date', ticker]
+                table1 = table1.set_index("Date")
+            
+        except Exception:
+            table1 = pd.DataFrame()
+    
+    return table1
 ```
 
 
 ```python
-bday = read_birthdays(file_path)
+csv = pd.read_csv('./companylist.csv')
+# We want to keep "Finance, Health Care, Technology, Energy"
+newcsv = csv[csv["Sector"].isin(["Finance", "Energy","Health Care","Technology"])].reset_index()
+del newcsv["index"]
 ```
 
 
 ```python
-bday = bday.split("\n")
+whole_list = newcsv['Symbol']
 ```
 
 
 ```python
-bday = bday[6:65537]
-```
-
-
-```python
-bday = filter(None, bday)
-```
-
-
-```python
-bday = bday[0:365]
-```
-
-
-```python
-month = [line.split("/")[0] for line in bday]
-```
-
-
-```python
-day = [line.split("/")[1] for line in bday]
-```
-
-
-```python
-end = [line.split("/")[2] for line in bday]
-```
-
-
-```python
-year = [line.split("\t")[0] for line in end]
-```
-
-
-```python
-count = [line.split("\t")[1] for line in end]
-```
-
-
-```python
-df = []
-```
-
-
-```python
-for line in range(0,365):
-    x =  [int(month[line]), int(day[line]), int(year[line]), int(count[line])]
-    df.append(x)
-```
-
-
-```python
-df
+'''
+for l in whole_list:
+    get = price2(l)
+    try:
+        df = pd.concat([df,get],axis = 1)    # concat. by column 
+    except NameError:
+        df = pd.DataFrame(get)    # initialize automatically
+# SAVE THE RESULT LOCALLY:
+df.to_pickle('mydf')
+'''
 ```
 
 
 
 
-    [[1, 1, 78, 7701],
-     [1, 2, 78, 7527],
-     [1, 3, 78, 8825],
-     [1, 4, 78, 8859],
-     [1, 5, 78, 9043],
-     [1, 6, 78, 9208],
-     [1, 7, 78, 8084],
-     [1, 8, 78, 7611],
-     [1, 9, 78, 9172],
-     [1, 10, 78, 9089],
-     [1, 11, 78, 9210],
-     [1, 12, 78, 9259],
-     [1, 13, 78, 9138],
-     [1, 14, 78, 8299],
-     [1, 15, 78, 7771],
-     [1, 16, 78, 9458],
-     [1, 17, 78, 9339],
-     [1, 18, 78, 9120],
-     [1, 19, 78, 9226],
-     [1, 20, 78, 9305],
-     [1, 21, 78, 7954],
-     [1, 22, 78, 7560],
-     [1, 23, 78, 9252],
-     [1, 24, 78, 9416],
-     [1, 25, 78, 9090],
-     [1, 26, 78, 9387],
-     [1, 27, 78, 8983],
-     [1, 28, 78, 7946],
-     [1, 29, 78, 7527],
-     [1, 30, 78, 9184],
-     [1, 31, 78, 9152],
-     [2, 1, 78, 9159],
-     [2, 2, 78, 9218],
-     [2, 3, 78, 9167],
-     [2, 4, 78, 8065],
-     [2, 5, 78, 7804],
-     [2, 6, 78, 9225],
-     [2, 7, 78, 9328],
-     [2, 8, 78, 9139],
-     [2, 9, 78, 9247],
-     [2, 10, 78, 9527],
-     [2, 11, 78, 8144],
-     [2, 12, 78, 7950],
-     [2, 13, 78, 8966],
-     [2, 14, 78, 9859],
-     [2, 15, 78, 9285],
-     [2, 16, 78, 9103],
-     [2, 17, 78, 9238],
-     [2, 18, 78, 8167],
-     [2, 19, 78, 7695],
-     [2, 20, 78, 9021],
-     [2, 21, 78, 9252],
-     [2, 22, 78, 9335],
-     [2, 23, 78, 9268],
-     [2, 24, 78, 9552],
-     [2, 25, 78, 8313],
-     [2, 26, 78, 7881],
-     [2, 27, 78, 9262],
-     [2, 28, 78, 9705],
-     [3, 1, 78, 9132],
-     [3, 2, 78, 9304],
-     [3, 3, 78, 9431],
-     [3, 4, 78, 8008],
-     [3, 5, 78, 7791],
-     [3, 6, 78, 9294],
-     [3, 7, 78, 9573],
-     [3, 8, 78, 9212],
-     [3, 9, 78, 9218],
-     [3, 10, 78, 9583],
-     [3, 11, 78, 8144],
-     [3, 12, 78, 7870],
-     [3, 13, 78, 9022],
-     [3, 14, 78, 9525],
-     [3, 15, 78, 9284],
-     [3, 16, 78, 9327],
-     [3, 17, 78, 9480],
-     [3, 18, 78, 7965],
-     [3, 19, 78, 7729],
-     [3, 20, 78, 9135],
-     [3, 21, 78, 9663],
-     [3, 22, 78, 9307],
-     [3, 23, 78, 9159],
-     [3, 24, 78, 9157],
-     [3, 25, 78, 7874],
-     [3, 26, 78, 7589],
-     [3, 27, 78, 9100],
-     [3, 28, 78, 9293],
-     [3, 29, 78, 9195],
-     [3, 30, 78, 8902],
-     [3, 31, 78, 9318],
-     [4, 1, 78, 8069],
-     [4, 2, 78, 7691],
-     [4, 3, 78, 9114],
-     [4, 4, 78, 9439],
-     [4, 5, 78, 8852],
-     [4, 6, 78, 8969],
-     [4, 7, 78, 9077],
-     [4, 8, 78, 7890],
-     [4, 9, 78, 7445],
-     [4, 10, 78, 8870],
-     [4, 11, 78, 9023],
-     [4, 12, 78, 8606],
-     [4, 13, 78, 8724],
-     [4, 14, 78, 9012],
-     [4, 15, 78, 7527],
-     [4, 16, 78, 7193],
-     [4, 17, 78, 8702],
-     [4, 18, 78, 9205],
-     [4, 19, 78, 8720],
-     [4, 20, 78, 8582],
-     [4, 21, 78, 8892],
-     [4, 22, 78, 7787],
-     [4, 23, 78, 7304],
-     [4, 24, 78, 9017],
-     [4, 25, 78, 9077],
-     [4, 26, 78, 9019],
-     [4, 27, 78, 8839],
-     [4, 28, 78, 9047],
-     [4, 29, 78, 7750],
-     [4, 30, 78, 7135],
-     [5, 1, 78, 8900],
-     [5, 2, 78, 9422],
-     [5, 3, 78, 9051],
-     [5, 4, 78, 8672],
-     [5, 5, 78, 9101],
-     [5, 6, 78, 7718],
-     [5, 7, 78, 7388],
-     [5, 8, 78, 8987],
-     [5, 9, 78, 9307],
-     [5, 10, 78, 9273],
-     [5, 11, 78, 8903],
-     [5, 12, 78, 8975],
-     [5, 13, 78, 7762],
-     [5, 14, 78, 7382],
-     [5, 15, 78, 9195],
-     [5, 16, 78, 9200],
-     [5, 17, 78, 8913],
-     [5, 18, 78, 9044],
-     [5, 19, 78, 9000],
-     [5, 20, 78, 8064],
-     [5, 21, 78, 7570],
-     [5, 22, 78, 9089],
-     [5, 23, 78, 9210],
-     [5, 24, 78, 9196],
-     [5, 25, 78, 9180],
-     [5, 26, 78, 9514],
-     [5, 27, 78, 8005],
-     [5, 28, 78, 7781],
-     [5, 29, 78, 7780],
-     [5, 30, 78, 9630],
-     [5, 31, 78, 9600],
-     [6, 1, 78, 9435],
-     [6, 2, 78, 9303],
-     [6, 3, 78, 7971],
-     [6, 4, 78, 7399],
-     [6, 5, 78, 9127],
-     [6, 6, 78, 9606],
-     [6, 7, 78, 9328],
-     [6, 8, 78, 9075],
-     [6, 9, 78, 9362],
-     [6, 10, 78, 8040],
-     [6, 11, 78, 7581],
-     [6, 12, 78, 9201],
-     [6, 13, 78, 9264],
-     [6, 14, 78, 9216],
-     [6, 15, 78, 9175],
-     [6, 16, 78, 9350],
-     [6, 17, 78, 8233],
-     [6, 18, 78, 7777],
-     [6, 19, 78, 9543],
-     [6, 20, 78, 9672],
-     [6, 21, 78, 9266],
-     [6, 22, 78, 9405],
-     [6, 23, 78, 9598],
-     [6, 24, 78, 8122],
-     [6, 25, 78, 8091],
-     [6, 26, 78, 9348],
-     [6, 27, 78, 9857],
-     [6, 28, 78, 9701],
-     [6, 29, 78, 9630],
-     [6, 30, 78, 10080],
-     [7, 1, 78, 8209],
-     [7, 2, 78, 7976],
-     [7, 3, 78, 9284],
-     [7, 4, 78, 8433],
-     [7, 5, 78, 9675],
-     [7, 6, 78, 10184],
-     [7, 7, 78, 10241],
-     [7, 8, 78, 8773],
-     [7, 9, 78, 8102],
-     [7, 10, 78, 9877],
-     [7, 11, 78, 9852],
-     [7, 12, 78, 9705],
-     [7, 13, 78, 9984],
-     [7, 14, 78, 10438],
-     [7, 15, 78, 8859],
-     [7, 16, 78, 8416],
-     [7, 17, 78, 10026],
-     [7, 18, 78, 10357],
-     [7, 19, 78, 10015],
-     [7, 20, 78, 10386],
-     [7, 21, 78, 10332],
-     [7, 22, 78, 9062],
-     [7, 23, 78, 8563],
-     [7, 24, 78, 9960],
-     [7, 25, 78, 10349],
-     [7, 26, 78, 10091],
-     [7, 27, 78, 10192],
-     [7, 28, 78, 10307],
-     [7, 29, 78, 8677],
-     [7, 30, 78, 8486],
-     [7, 31, 78, 9890],
-     [8, 1, 78, 10145],
-     [8, 2, 78, 9824],
-     [8, 3, 78, 10128],
-     [8, 4, 78, 10051],
-     [8, 5, 78, 8738],
-     [8, 6, 78, 8442],
-     [8, 7, 78, 10206],
-     [8, 8, 78, 10442],
-     [8, 9, 78, 10142],
-     [8, 10, 78, 10284],
-     [8, 11, 78, 10162],
-     [8, 12, 78, 8951],
-     [8, 13, 78, 8532],
-     [8, 14, 78, 10127],
-     [8, 15, 78, 10502],
-     [8, 16, 78, 10053],
-     [8, 17, 78, 10377],
-     [8, 18, 78, 10355],
-     [8, 19, 78, 8904],
-     [8, 20, 78, 8477],
-     [8, 21, 78, 9967],
-     [8, 22, 78, 10229],
-     [8, 23, 78, 9900],
-     [8, 24, 78, 10152],
-     [8, 25, 78, 10173],
-     [8, 26, 78, 8782],
-     [8, 27, 78, 8453],
-     [8, 28, 78, 9998],
-     [8, 29, 78, 10387],
-     [8, 30, 78, 10063],
-     [8, 31, 78, 9849],
-     [9, 1, 78, 10114],
-     [9, 2, 78, 8580],
-     [9, 3, 78, 8355],
-     [9, 4, 78, 8481],
-     [9, 5, 78, 10023],
-     [9, 6, 78, 10703],
-     [9, 7, 78, 10292],
-     [9, 8, 78, 10371],
-     [9, 9, 78, 9023],
-     [9, 10, 78, 8630],
-     [9, 11, 78, 10154],
-     [9, 12, 78, 10425],
-     [9, 13, 78, 10149],
-     [9, 14, 78, 10265],
-     [9, 15, 78, 10265],
-     [9, 16, 78, 9170],
-     [9, 17, 78, 8711],
-     [9, 18, 78, 10304],
-     [9, 19, 78, 10711],
-     [9, 20, 78, 10488],
-     [9, 21, 78, 10499],
-     [9, 22, 78, 10349],
-     [9, 23, 78, 8735],
-     [9, 24, 78, 8647],
-     [9, 25, 78, 10414],
-     [9, 26, 78, 10498],
-     [9, 27, 78, 10344],
-     [9, 28, 78, 10175],
-     [9, 29, 78, 10368],
-     [9, 30, 78, 8648],
-     [10, 1, 78, 8686],
-     [10, 2, 78, 9927],
-     [10, 3, 78, 10378],
-     [10, 4, 78, 9928],
-     [10, 5, 78, 9949],
-     [10, 6, 78, 10052],
-     [10, 7, 78, 8605],
-     [10, 8, 78, 8377],
-     [10, 9, 78, 9765],
-     [10, 10, 78, 10351],
-     [10, 11, 78, 9873],
-     [10, 12, 78, 9824],
-     [10, 13, 78, 9755],
-     [10, 14, 78, 8554],
-     [10, 15, 78, 7873],
-     [10, 16, 78, 9531],
-     [10, 17, 78, 9938],
-     [10, 18, 78, 9388],
-     [10, 19, 78, 9502],
-     [10, 20, 78, 9625],
-     [10, 21, 78, 8411],
-     [10, 22, 78, 7936],
-     [10, 23, 78, 9425],
-     [10, 24, 78, 9576],
-     [10, 25, 78, 9328],
-     [10, 26, 78, 9501],
-     [10, 27, 78, 9537],
-     [10, 28, 78, 8415],
-     [10, 29, 78, 8155],
-     [10, 30, 78, 9457],
-     [10, 31, 78, 9333],
-     [11, 1, 78, 9321],
-     [11, 2, 78, 9245],
-     [11, 3, 78, 9774],
-     [11, 4, 78, 8246],
-     [11, 5, 78, 8011],
-     [11, 6, 78, 9507],
-     [11, 7, 78, 9769],
-     [11, 8, 78, 9501],
-     [11, 9, 78, 9609],
-     [11, 10, 78, 9652],
-     [11, 11, 78, 8352],
-     [11, 12, 78, 7967],
-     [11, 13, 78, 9606],
-     [11, 14, 78, 10014],
-     [11, 15, 78, 9536],
-     [11, 16, 78, 9568],
-     [11, 17, 78, 9835],
-     [11, 18, 78, 8432],
-     [11, 19, 78, 7868],
-     [11, 20, 78, 9592],
-     [11, 21, 78, 9950],
-     [11, 22, 78, 9548],
-     [11, 23, 78, 7915],
-     [11, 24, 78, 9037],
-     [11, 25, 78, 8275],
-     [11, 26, 78, 8068],
-     [11, 27, 78, 9825],
-     [11, 28, 78, 9814],
-     [11, 29, 78, 9438],
-     [11, 30, 78, 9396],
-     [12, 1, 78, 9592],
-     [12, 2, 78, 8528],
-     [12, 3, 78, 8196],
-     [12, 4, 78, 9767],
-     [12, 5, 78, 9881],
-     [12, 6, 78, 9402],
-     [12, 7, 78, 9480],
-     [12, 8, 78, 9398],
-     [12, 9, 78, 8335],
-     [12, 10, 78, 8093],
-     [12, 11, 78, 9686],
-     [12, 12, 78, 10063],
-     [12, 13, 78, 9509],
-     [12, 14, 78, 9524],
-     [12, 15, 78, 9951],
-     [12, 16, 78, 8507],
-     [12, 17, 78, 8172],
-     [12, 18, 78, 10196],
-     [12, 19, 78, 10605],
-     [12, 20, 78, 9998],
-     [12, 21, 78, 9398],
-     [12, 22, 78, 9008],
-     [12, 23, 78, 7939],
-     [12, 24, 78, 7964],
-     [12, 25, 78, 7846],
-     [12, 26, 78, 8902],
-     [12, 27, 78, 9907],
-     [12, 28, 78, 10177],
-     [12, 29, 78, 10401],
-     [12, 30, 78, 8474],
-     [12, 31, 78, 8028]]
+    "\nfor l in whole_list:\n    get = price2(l)\n    try:\n        df = pd.concat([df,get],axis = 1)    # concat. by column \n    except NameError:\n        df = pd.DataFrame(get)    # initialize automatically\n# SAVE THE RESULT LOCALLY:\ndf.to_pickle('mydf')\n"
 
 
-
-__Exercise 2.2.__ Which month had the most births in 1978? Which day of the week had the most births? Which day of the week had the fewest? What conclusions can you draw? You may find the `Counter` class in the `collections` module useful.
 
 
 ```python
-from collections import Counter
-import pandas as pd
-from pandas import *
+df = pd.read_pickle('mydf')
 ```
 
 
 ```python
-month = map(int, month)
-day = map(int, day)
-year = map(int, year)
-count = map(int, count)
+# This allows us to control size of a dataframe displayed to examine our data in depth
+pd.options.display.max_columns = 20
+pd.options.display.max_rows = 30
 ```
 
 
 ```python
-new_df = pd.DataFrame({'Month': month,
-                      'Day': day,
-                      'Year': year,
-                      'Count': count})
-```
-
-
-```python
-max_month = new_df.groupby(['Month'])['Count'].sum()
-```
-
-
-```python
-max_month = zip(max_month, range(1,13))
-max(max_month)
-```
-
-
-
-
-    (302795, 8)
-
-
-
-Month with highest counts is August.
-
-
-```python
-li = []
-```
-
-
-```python
-for i in range(1,366):
-    new_day = day[i-1]
-    new_month = month[i-1]
-    new_year = year[i-1]
-    li.append(dayofweek(new_day, new_month, 1900+new_year))
-```
-
-
-```python
-1900 + year[0]
-```
-
-
-
-
-    1978
-
-
-
-
-```python
-dayofweek(day[1], month[1], year[1])
-```
-
-
-
-
-    'Wednesday'
-
-
-
-
-```python
-dayofweek(1,1,1978)
-```
-
-
-
-
-    'Sunday'
-
-
-
-
-```python
-final_df = pd.DataFrame({'Month': month,
-                      'Day': day,
-                      'Year': year,
-                      'Count': count,
-                      'NameDay': li})
-```
-
-
-```python
-final_df
+df.head()
 ```
 
 
@@ -976,253 +180,846 @@ final_df
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>Count</th>
-      <th>Day</th>
-      <th>Month</th>
-      <th>NameDay</th>
-      <th>Year</th>
+      <th>PIH</th>
+      <th>FCCY</th>
+      <th>SRCE</th>
+      <th>VNET</th>
+      <th>TWOU</th>
+      <th>JOBS</th>
+      <th>ABEO</th>
+      <th>ABIL</th>
+      <th>ABMD</th>
+      <th>AXAS</th>
+      <th>...</th>
+      <th>ZLTQ</th>
+      <th>ZN</th>
+      <th>ZION</th>
+      <th>ZIONW</th>
+      <th>ZIOP</th>
+      <th>ZIXI</th>
+      <th>ZGNX</th>
+      <th>ZSAN</th>
+      <th>ZYNE</th>
+      <th>ZNGA</th>
+    </tr>
+    <tr>
+      <th>Date</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th>0</th>
-      <td>7701</td>
-      <td>1</td>
-      <td>1</td>
-      <td>Sunday</td>
-      <td>78</td>
+      <th>2006-01-02</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
     <tr>
+      <th>2006-01-03</th>
+      <td>NaN</td>
+      <td>21.499973</td>
+      <td>25.830002</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>14.95</td>
+      <td>0.51</td>
+      <td>NaN</td>
+      <td>9.35</td>
+      <td>5.55</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>76.480003</td>
+      <td>NaN</td>
+      <td>3.60</td>
+      <td>1.93</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2006-01-04</th>
+      <td>NaN</td>
+      <td>21.499973</td>
+      <td>25.659998</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>14.79</td>
+      <td>0.47</td>
+      <td>NaN</td>
+      <td>9.62</td>
+      <td>5.55</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>77.019997</td>
+      <td>NaN</td>
+      <td>4.00</td>
+      <td>2.04</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2006-01-05</th>
+      <td>NaN</td>
+      <td>20.999980</td>
+      <td>25.820004</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>16.15</td>
+      <td>0.46</td>
+      <td>NaN</td>
+      <td>9.55</td>
+      <td>5.81</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>77.720001</td>
+      <td>NaN</td>
+      <td>4.00</td>
+      <td>2.20</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2006-01-06</th>
+      <td>NaN</td>
+      <td>20.519969</td>
+      <td>25.950002</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>17.08</td>
+      <td>0.45</td>
+      <td>NaN</td>
+      <td>9.75</td>
+      <td>5.95</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>78.529999</td>
+      <td>NaN</td>
+      <td>4.25</td>
+      <td>2.09</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 1675 columns</p>
+</div>
+
+
+
+
+```python
+final = newcsv.reset_index()
+df_long = df.transpose()
+sector  = final[['Symbol','Sector']]
+sector = sector.set_index('Symbol')
+```
+
+
+```python
+final = df_long.join(sector)
+```
+
+
+```python
+final.head()
+```
+
+
+
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>2006-01-02 00:00:00</th>
+      <th>2006-01-03 00:00:00</th>
+      <th>2006-01-04 00:00:00</th>
+      <th>2006-01-05 00:00:00</th>
+      <th>2006-01-06 00:00:00</th>
+      <th>2006-01-09 00:00:00</th>
+      <th>2006-01-10 00:00:00</th>
+      <th>2006-01-11 00:00:00</th>
+      <th>2006-01-12 00:00:00</th>
+      <th>2006-01-13 00:00:00</th>
+      <th>...</th>
+      <th>2016-12-20 00:00:00</th>
+      <th>2016-12-21 00:00:00</th>
+      <th>2016-12-22 00:00:00</th>
+      <th>2016-12-23 00:00:00</th>
+      <th>2016-12-26 00:00:00</th>
+      <th>2016-12-27 00:00:00</th>
+      <th>2016-12-28 00:00:00</th>
+      <th>2016-12-29 00:00:00</th>
+      <th>2016-12-30 00:00:00</th>
+      <th>Sector</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>PIH</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>7.601000</td>
+      <td>7.583000</td>
+      <td>7.400000</td>
+      <td>7.650000</td>
+      <td>NaN</td>
+      <td>7.400000</td>
+      <td>7.400000</td>
+      <td>7.250000</td>
+      <td>7.800000</td>
+      <td>Finance</td>
+    </tr>
+    <tr>
+      <th>FCCY</th>
+      <td>NaN</td>
+      <td>21.499973</td>
+      <td>21.499973</td>
+      <td>20.999980</td>
+      <td>20.519969</td>
+      <td>20.249976</td>
+      <td>19.999980</td>
+      <td>20.369968</td>
+      <td>20.000001</td>
+      <td>20.779999</td>
+      <td>...</td>
+      <td>17.549999</td>
+      <td>17.350000</td>
+      <td>17.280001</td>
+      <td>17.350000</td>
+      <td>NaN</td>
+      <td>18.100000</td>
+      <td>18.250000</td>
+      <td>18.000000</td>
+      <td>18.700001</td>
+      <td>Finance</td>
+    </tr>
+    <tr>
+      <th>SRCE</th>
+      <td>NaN</td>
+      <td>25.830002</td>
+      <td>25.659998</td>
+      <td>25.820004</td>
+      <td>25.950002</td>
+      <td>25.999997</td>
+      <td>25.999997</td>
+      <td>25.999997</td>
+      <td>25.940002</td>
+      <td>25.989997</td>
+      <td>...</td>
+      <td>45.000000</td>
+      <td>44.439999</td>
+      <td>44.400002</td>
+      <td>44.200001</td>
+      <td>NaN</td>
+      <td>44.740002</td>
+      <td>44.700001</td>
+      <td>45.330002</td>
+      <td>44.660000</td>
+      <td>Finance</td>
+    </tr>
+    <tr>
+      <th>VNET</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>7.320000</td>
+      <td>7.100000</td>
+      <td>6.990000</td>
+      <td>7.050000</td>
+      <td>NaN</td>
+      <td>7.150000</td>
+      <td>7.090000</td>
+      <td>6.960000</td>
+      <td>7.010000</td>
+      <td>Technology</td>
+    </tr>
+    <tr>
+      <th>TWOU</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>33.049999</td>
+      <td>32.099998</td>
+      <td>30.740000</td>
+      <td>30.809999</td>
+      <td>NaN</td>
+      <td>30.549999</td>
+      <td>30.340000</td>
+      <td>29.770000</td>
+      <td>30.150000</td>
+      <td>Technology</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 2821 columns</p>
+</div>
+
+
+
+
+```python
+hc = final[final['Sector'] == 'Health Care']
+```
+
+
+```python
+# take median within groups for each recorded date:
+avg_sector = final.groupby('Sector').median().reset_index('Sector')
+avg_sector = avg_sector.set_index('Sector')
+avg_sector = avg_sector.dropna(thresh=4, axis = 1) # this drops if a column does not have at least two non NA's
+```
+
+
+```python
+# Dates as index for plotting
+# This is basically the original DF (transposed and transposed back)
+# but the columns are now the Sector averages.
+avg_T = avg_sector.transpose()
+```
+
+
+```python
+avg_T.head()
+```
+
+
+
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Sector</th>
+      <th>Energy</th>
+      <th>Finance</th>
+      <th>Health Care</th>
+      <th>Technology</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2006-01-03 00:00:00</th>
+      <td>13.565</td>
+      <td>23.250000</td>
+      <td>6.945685</td>
+      <td>11.245</td>
+    </tr>
+    <tr>
+      <th>2006-01-04 00:00:00</th>
+      <td>13.460</td>
+      <td>23.309999</td>
+      <td>6.925000</td>
+      <td>11.655</td>
+    </tr>
+    <tr>
+      <th>2006-01-05 00:00:00</th>
+      <td>13.750</td>
+      <td>23.459999</td>
+      <td>6.990000</td>
+      <td>11.770</td>
+    </tr>
+    <tr>
+      <th>2006-01-06 00:00:00</th>
+      <td>13.700</td>
+      <td>23.400000</td>
+      <td>7.019992</td>
+      <td>11.775</td>
+    </tr>
+    <tr>
+      <th>2006-01-09 00:00:00</th>
+      <td>13.790</td>
+      <td>23.500000</td>
+      <td>7.100000</td>
+      <td>12.050</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+def ts_slider(sector,sec_name):
+    trace = go.Scatter(x=avg_T.index,y=sector)
+    data = [trace]
+    layout = dict(
+        title=sec_name + ' Sector Closing Prices: Time series with Range Slider',
+        xaxis=dict(
+            rangeselector=dict(
+                buttons=list([
+                    dict(count=1,
+                         label='1m',
+                         step='month',
+                         stepmode='backward'),
+                    dict(count=6,
+                         label='6m',
+                         step='month',
+                         stepmode='backward'),
+                    dict(count=1,
+                        label='YTD',
+                        step='year',
+                        stepmode='todate'),
+                    dict(count=1,
+                        label='1y',
+                        step='year',
+                        stepmode='backward'),
+                    dict(step='all')
+                ])
+            ),
+            rangeslider=dict(),
+            type='date'
+        )
+    )
+
+    fig = dict(data=data, layout=layout)
+    return py.iplot(fig)
+```
+
+
+```python
+ts_slider(avg_T.Energy,"Energy")
+```
+
+
+
+
+<iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="https://plot.ly/~audchu/58.embed" height="525px" width="100%"></iframe>
+
+
+
+
+```python
+
+```
+
+## Volatility Analysis
+
+
+```python
+# A new DF for the difference between each day:
+delta_df = pd.DataFrame()
+for sect in avg_T.columns:
+    delta_df[sect] = np.log(avg_T[sect].shift(1)) - np.log(avg_T[sect])
+delta_df.columns = map(lambda name: '{} Changes'.format(name),avg_T.columns)
+
+# On what day did the stock price spike the most?
+abs(delta_df).idxmax()
+```
+
+
+
+
+    Energy Changes        2008-10-06
+    Finance Changes       2008-12-01
+    Health Care Changes   2008-11-19
+    Technology Changes    2008-12-01
+    dtype: datetime64[ns]
+
+
+
+
+```python
+shade = delta_df['Energy Changes']
+```
+
+
+```python
+delta_df.head()
+```
+
+
+
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Energy Changes</th>
+      <th>Finance Changes</th>
+      <th>Health Care Changes</th>
+      <th>Technology Changes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2006-01-03</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2006-01-04</th>
+      <td>0.007771</td>
+      <td>-0.002577</td>
+      <td>0.002982</td>
+      <td>-0.035812</td>
+    </tr>
+    <tr>
+      <th>2006-01-05</th>
+      <td>-0.021316</td>
+      <td>-0.006414</td>
+      <td>-0.009343</td>
+      <td>-0.009819</td>
+    </tr>
+    <tr>
+      <th>2006-01-06</th>
+      <td>0.003643</td>
+      <td>0.002561</td>
+      <td>-0.004282</td>
+      <td>-0.000425</td>
+    </tr>
+    <tr>
+      <th>2006-01-09</th>
+      <td>-0.006548</td>
+      <td>-0.004264</td>
+      <td>-0.011333</td>
+      <td>-0.023086</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+plot_cols = list(delta_df)
+
+# 2 axes for 2 subplots
+fig, axes = plt.subplots(4,1, figsize=(10,7), sharex=True)
+#delta_df[plot_cols].plot(subplots=True, ax=axes)
+delta_df[plot_cols].plot(subplots=True, ax=axes)
+#plt.ylim([-0.20,0.150])
+plt.show()
+```
+
+
+![png](output_27_0.png)
+
+
+### Changes of Average Stock Price by Month
+
+
+```python
+avg_T.index= pd.to_datetime(avg_T.index)
+avg_month = avg_T.groupby([avg_T.index.year, avg_T.index.month]).mean()
+avg_month.head()
+```
+
+
+
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Sector</th>
+      <th>Energy</th>
+      <th>Finance</th>
+      <th>Health Care</th>
+      <th>Technology</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">2006</th>
       <th>1</th>
-      <td>7527</td>
-      <td>2</td>
-      <td>1</td>
-      <td>Monday</td>
-      <td>78</td>
+      <td>14.183000</td>
+      <td>23.605500</td>
+      <td>7.159611</td>
+      <td>11.686500</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>8825</td>
-      <td>3</td>
-      <td>1</td>
-      <td>Tuesday</td>
-      <td>78</td>
+      <td>15.404737</td>
+      <td>23.857619</td>
+      <td>7.334495</td>
+      <td>11.895263</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>8859</td>
-      <td>4</td>
-      <td>1</td>
-      <td>Wednesday</td>
-      <td>78</td>
+      <td>14.699130</td>
+      <td>23.953911</td>
+      <td>7.656957</td>
+      <td>12.523913</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>9043</td>
-      <td>5</td>
-      <td>1</td>
-      <td>Thursday</td>
-      <td>78</td>
+      <td>15.968421</td>
+      <td>23.920786</td>
+      <td>7.665814</td>
+      <td>13.029474</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>9208</td>
-      <td>6</td>
-      <td>1</td>
-      <td>Friday</td>
-      <td>78</td>
+      <td>17.850000</td>
+      <td>23.418863</td>
+      <td>7.096370</td>
+      <td>12.887273</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+plot_cols
+```
+
+
+
+
+    ['Energy Changes',
+     'Finance Changes',
+     'Health Care Changes',
+     'Technology Changes']
+
+
+
+
+```python
+# A new DF for the difference between each month's average:
+delta_avg = pd.DataFrame()
+
+for sect in avg_month.columns:
+    delta_avg[sect] = np.log(avg_month[sect].shift(1)) - np.log(avg_month[sect])
+delta_avg.columns = map(lambda name: '{} Changes'.format(name),avg_month.columns)
+
+col = []
+for i in range(len(delta_avg)):
+    dt = delta_avg.index[i] + (10, 10, 10, 10)
+    dt_obj = datetime(*dt[0:6])
+    col.append(pd.to_datetime(dt_obj))
+```
+
+
+```python
+
+```
+
+
+```python
+delta_avg['Timestamp'] = col
+```
+
+
+```python
+delta_avg = delta_avg.set_index('Timestamp')
+```
+
+
+```python
+delta_avg
+```
+
+
+
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Energy Changes</th>
+      <th>Finance Changes</th>
+      <th>Health Care Changes</th>
+      <th>Technology Changes</th>
     </tr>
     <tr>
-      <th>6</th>
-      <td>8084</td>
-      <td>7</td>
-      <td>1</td>
-      <td>Saturday</td>
-      <td>78</td>
+      <th>Timestamp</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2006-01-10 10:10:10</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
     <tr>
-      <th>7</th>
-      <td>7611</td>
-      <td>8</td>
-      <td>1</td>
-      <td>Sunday</td>
-      <td>78</td>
+      <th>2006-02-10 10:10:10</th>
+      <td>-0.082631</td>
+      <td>-0.010624</td>
+      <td>-0.024133</td>
+      <td>-0.017706</td>
     </tr>
     <tr>
-      <th>8</th>
-      <td>9172</td>
-      <td>9</td>
-      <td>1</td>
-      <td>Monday</td>
-      <td>78</td>
+      <th>2006-03-10 10:10:10</th>
+      <td>0.046887</td>
+      <td>-0.004028</td>
+      <td>-0.043026</td>
+      <td>-0.051500</td>
     </tr>
     <tr>
-      <th>9</th>
-      <td>9089</td>
-      <td>10</td>
-      <td>1</td>
-      <td>Tuesday</td>
-      <td>78</td>
+      <th>2006-04-10 10:10:10</th>
+      <td>-0.082825</td>
+      <td>0.001384</td>
+      <td>-0.001156</td>
+      <td>-0.039574</td>
     </tr>
     <tr>
-      <th>10</th>
-      <td>9210</td>
-      <td>11</td>
-      <td>1</td>
-      <td>Wednesday</td>
-      <td>78</td>
+      <th>2006-05-10 10:10:10</th>
+      <td>-0.111390</td>
+      <td>0.021206</td>
+      <td>0.077187</td>
+      <td>0.010974</td>
     </tr>
     <tr>
-      <th>11</th>
-      <td>9259</td>
-      <td>12</td>
-      <td>1</td>
-      <td>Thursday</td>
-      <td>78</td>
+      <th>2006-06-10 10:10:10</th>
+      <td>-0.022834</td>
+      <td>0.014280</td>
+      <td>0.042359</td>
+      <td>0.089027</td>
     </tr>
     <tr>
-      <th>12</th>
-      <td>9138</td>
-      <td>13</td>
-      <td>1</td>
-      <td>Friday</td>
-      <td>78</td>
+      <th>2006-07-10 10:10:10</th>
+      <td>-0.010213</td>
+      <td>0.006151</td>
+      <td>0.071923</td>
+      <td>0.061305</td>
     </tr>
     <tr>
-      <th>13</th>
-      <td>8299</td>
-      <td>14</td>
-      <td>1</td>
-      <td>Saturday</td>
-      <td>78</td>
+      <th>2006-08-10 10:10:10</th>
+      <td>0.041277</td>
+      <td>-0.007239</td>
+      <td>0.080343</td>
+      <td>0.004462</td>
     </tr>
     <tr>
-      <th>14</th>
-      <td>7771</td>
-      <td>15</td>
-      <td>1</td>
-      <td>Sunday</td>
-      <td>78</td>
+      <th>2006-09-10 10:10:10</th>
+      <td>0.035880</td>
+      <td>-0.020717</td>
+      <td>-0.092788</td>
+      <td>-0.032277</td>
     </tr>
     <tr>
-      <th>15</th>
-      <td>9458</td>
-      <td>16</td>
-      <td>1</td>
-      <td>Monday</td>
-      <td>78</td>
+      <th>2006-10-10 10:10:10</th>
+      <td>-0.067018</td>
+      <td>-0.005338</td>
+      <td>-0.065543</td>
+      <td>-0.044895</td>
     </tr>
     <tr>
-      <th>16</th>
-      <td>9339</td>
-      <td>17</td>
-      <td>1</td>
-      <td>Tuesday</td>
-      <td>78</td>
+      <th>2006-11-10 10:10:10</th>
+      <td>-0.031399</td>
+      <td>-0.018008</td>
+      <td>-0.040524</td>
+      <td>-0.040460</td>
     </tr>
     <tr>
-      <th>17</th>
-      <td>9120</td>
-      <td>18</td>
-      <td>1</td>
-      <td>Wednesday</td>
-      <td>78</td>
+      <th>2006-12-10 10:10:10</th>
+      <td>-0.029503</td>
+      <td>0.007912</td>
+      <td>0.019185</td>
+      <td>-0.012394</td>
     </tr>
     <tr>
-      <th>18</th>
-      <td>9226</td>
-      <td>19</td>
-      <td>1</td>
-      <td>Thursday</td>
-      <td>78</td>
+      <th>2007-01-10 10:10:10</th>
+      <td>-0.021747</td>
+      <td>0.021343</td>
+      <td>-0.010596</td>
+      <td>-0.010150</td>
     </tr>
     <tr>
-      <th>19</th>
-      <td>9305</td>
-      <td>20</td>
-      <td>1</td>
-      <td>Friday</td>
-      <td>78</td>
+      <th>2007-02-10 10:10:10</th>
+      <td>-0.100102</td>
+      <td>-0.004281</td>
+      <td>-0.054437</td>
+      <td>-0.078498</td>
     </tr>
     <tr>
-      <th>20</th>
-      <td>7954</td>
-      <td>21</td>
-      <td>1</td>
-      <td>Saturday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>21</th>
-      <td>7560</td>
-      <td>22</td>
-      <td>1</td>
-      <td>Sunday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>22</th>
-      <td>9252</td>
-      <td>23</td>
-      <td>1</td>
-      <td>Monday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>23</th>
-      <td>9416</td>
-      <td>24</td>
-      <td>1</td>
-      <td>Tuesday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>24</th>
-      <td>9090</td>
-      <td>25</td>
-      <td>1</td>
-      <td>Wednesday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>25</th>
-      <td>9387</td>
-      <td>26</td>
-      <td>1</td>
-      <td>Thursday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>26</th>
-      <td>8983</td>
-      <td>27</td>
-      <td>1</td>
-      <td>Friday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>27</th>
-      <td>7946</td>
-      <td>28</td>
-      <td>1</td>
-      <td>Saturday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>28</th>
-      <td>7527</td>
-      <td>29</td>
-      <td>1</td>
-      <td>Sunday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>29</th>
-      <td>9184</td>
-      <td>30</td>
-      <td>1</td>
-      <td>Monday</td>
-      <td>78</td>
+      <th>2007-03-10 10:10:10</th>
+      <td>0.020816</td>
+      <td>0.042798</td>
+      <td>0.067679</td>
+      <td>0.027650</td>
     </tr>
     <tr>
       <th>...</th>
@@ -1230,316 +1027,1197 @@ final_df
       <td>...</td>
       <td>...</td>
       <td>...</td>
-      <td>...</td>
     </tr>
     <tr>
-      <th>335</th>
-      <td>8528</td>
-      <td>2</td>
-      <td>12</td>
-      <td>Saturday</td>
-      <td>78</td>
+      <th>2015-10-10 10:10:10</th>
+      <td>0.049518</td>
+      <td>0.002704</td>
+      <td>0.149391</td>
+      <td>0.009233</td>
     </tr>
     <tr>
-      <th>336</th>
-      <td>8196</td>
-      <td>3</td>
-      <td>12</td>
-      <td>Sunday</td>
-      <td>78</td>
+      <th>2015-11-10 10:10:10</th>
+      <td>0.051396</td>
+      <td>-0.019316</td>
+      <td>-0.043443</td>
+      <td>-0.023382</td>
     </tr>
     <tr>
-      <th>337</th>
-      <td>9767</td>
-      <td>4</td>
-      <td>12</td>
-      <td>Monday</td>
-      <td>78</td>
+      <th>2015-12-10 10:10:10</th>
+      <td>0.186521</td>
+      <td>0.014430</td>
+      <td>0.022265</td>
+      <td>0.002597</td>
     </tr>
     <tr>
-      <th>338</th>
-      <td>9881</td>
-      <td>5</td>
-      <td>12</td>
-      <td>Tuesday</td>
-      <td>78</td>
+      <th>2016-01-10 10:10:10</th>
+      <td>0.272163</td>
+      <td>0.045146</td>
+      <td>0.184826</td>
+      <td>0.120864</td>
     </tr>
     <tr>
-      <th>339</th>
-      <td>9402</td>
-      <td>6</td>
-      <td>12</td>
-      <td>Wednesday</td>
-      <td>78</td>
+      <th>2016-02-10 10:10:10</th>
+      <td>0.188164</td>
+      <td>0.033947</td>
+      <td>0.142778</td>
+      <td>0.042605</td>
     </tr>
     <tr>
-      <th>340</th>
-      <td>9480</td>
-      <td>7</td>
-      <td>12</td>
-      <td>Thursday</td>
-      <td>78</td>
+      <th>2016-03-10 10:10:10</th>
+      <td>-0.259750</td>
+      <td>-0.042696</td>
+      <td>-0.047555</td>
+      <td>-0.056975</td>
     </tr>
     <tr>
-      <th>341</th>
-      <td>9398</td>
-      <td>8</td>
-      <td>12</td>
-      <td>Friday</td>
-      <td>78</td>
+      <th>2016-04-10 10:10:10</th>
+      <td>-0.141077</td>
+      <td>-0.011704</td>
+      <td>-0.100264</td>
+      <td>-0.039645</td>
     </tr>
     <tr>
-      <th>342</th>
-      <td>8335</td>
-      <td>9</td>
-      <td>12</td>
-      <td>Saturday</td>
-      <td>78</td>
+      <th>2016-05-10 10:10:10</th>
+      <td>-0.052477</td>
+      <td>-0.002389</td>
+      <td>0.071397</td>
+      <td>0.026448</td>
     </tr>
     <tr>
-      <th>343</th>
-      <td>8093</td>
-      <td>10</td>
-      <td>12</td>
-      <td>Sunday</td>
-      <td>78</td>
+      <th>2016-06-10 10:10:10</th>
+      <td>0.022510</td>
+      <td>0.006800</td>
+      <td>-0.000141</td>
+      <td>-0.032379</td>
     </tr>
     <tr>
-      <th>344</th>
-      <td>9686</td>
-      <td>11</td>
-      <td>12</td>
-      <td>Monday</td>
-      <td>78</td>
+      <th>2016-07-10 10:10:10</th>
+      <td>-0.041249</td>
+      <td>-0.020425</td>
+      <td>0.013583</td>
+      <td>-0.031263</td>
     </tr>
     <tr>
-      <th>345</th>
-      <td>10063</td>
-      <td>12</td>
-      <td>12</td>
-      <td>Tuesday</td>
-      <td>78</td>
+      <th>2016-08-10 10:10:10</th>
+      <td>-0.155142</td>
+      <td>-0.031638</td>
+      <td>-0.029522</td>
+      <td>-0.020205</td>
     </tr>
     <tr>
-      <th>346</th>
-      <td>9509</td>
-      <td>13</td>
-      <td>12</td>
-      <td>Wednesday</td>
-      <td>78</td>
+      <th>2016-09-10 10:10:10</th>
+      <td>-0.163973</td>
+      <td>-0.022106</td>
+      <td>-0.045245</td>
+      <td>-0.022420</td>
     </tr>
     <tr>
-      <th>347</th>
-      <td>9524</td>
-      <td>14</td>
-      <td>12</td>
-      <td>Thursday</td>
-      <td>78</td>
+      <th>2016-10-10 10:10:10</th>
+      <td>-0.068873</td>
+      <td>-0.000642</td>
+      <td>0.042778</td>
+      <td>-0.023036</td>
     </tr>
     <tr>
-      <th>348</th>
-      <td>9951</td>
-      <td>15</td>
-      <td>12</td>
-      <td>Friday</td>
-      <td>78</td>
+      <th>2016-11-10 10:10:10</th>
+      <td>0.010856</td>
+      <td>-0.070580</td>
+      <td>0.046707</td>
+      <td>-0.022329</td>
     </tr>
     <tr>
-      <th>349</th>
-      <td>8507</td>
-      <td>16</td>
-      <td>12</td>
-      <td>Saturday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>350</th>
-      <td>8172</td>
-      <td>17</td>
-      <td>12</td>
-      <td>Sunday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>351</th>
-      <td>10196</td>
-      <td>18</td>
-      <td>12</td>
-      <td>Monday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>352</th>
-      <td>10605</td>
-      <td>19</td>
-      <td>12</td>
-      <td>Tuesday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>353</th>
-      <td>9998</td>
-      <td>20</td>
-      <td>12</td>
-      <td>Wednesday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>354</th>
-      <td>9398</td>
-      <td>21</td>
-      <td>12</td>
-      <td>Thursday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>355</th>
-      <td>9008</td>
-      <td>22</td>
-      <td>12</td>
-      <td>Friday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>356</th>
-      <td>7939</td>
-      <td>23</td>
-      <td>12</td>
-      <td>Saturday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>357</th>
-      <td>7964</td>
-      <td>24</td>
-      <td>12</td>
-      <td>Sunday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>358</th>
-      <td>7846</td>
-      <td>25</td>
-      <td>12</td>
-      <td>Monday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>359</th>
-      <td>8902</td>
-      <td>26</td>
-      <td>12</td>
-      <td>Tuesday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>360</th>
-      <td>9907</td>
-      <td>27</td>
-      <td>12</td>
-      <td>Wednesday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>361</th>
-      <td>10177</td>
-      <td>28</td>
-      <td>12</td>
-      <td>Thursday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>362</th>
-      <td>10401</td>
-      <td>29</td>
-      <td>12</td>
-      <td>Friday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>363</th>
-      <td>8474</td>
-      <td>30</td>
-      <td>12</td>
-      <td>Saturday</td>
-      <td>78</td>
-    </tr>
-    <tr>
-      <th>364</th>
-      <td>8028</td>
-      <td>31</td>
-      <td>12</td>
-      <td>Sunday</td>
-      <td>78</td>
+      <th>2016-12-10 10:10:10</th>
+      <td>-0.068674</td>
+      <td>-0.105806</td>
+      <td>0.034932</td>
+      <td>-0.030212</td>
     </tr>
   </tbody>
 </table>
-<p>365 rows × 5 columns</p>
+<p>132 rows × 4 columns</p>
 </div>
 
 
 
 
 ```python
-max_day = final_df.groupby(['NameDay'])['Count'].sum()
-max_day
+plot_cols = list(delta_avg)
+
+# 2 axes for 2 subplots
+fig, axes = plt.subplots(4,1, figsize=(10,7), sharex=True)
+#delta_df[plot_cols].plot(subplots=True, ax=axes)
+delta_avg[plot_cols].plot(subplots=True, ax=axes)
+#plt.ylim([-0.20,0.150])
+plt.show()
+```
+
+
+![png](output_36_0.png)
+
+
+
+```python
+
+```
+
+
+```python
+(abs(delta_avg).iloc[1:,:].quantile(q=0.90, axis=0))
+
 ```
 
 
 
 
-    NameDay
-    Friday       500541
-    Monday       487309
-    Saturday     432085
-    Sunday       421400
-    Thursday     493149
-    Tuesday      504858
-    Wednesday    493897
-    Name: Count, dtype: int64
+    Energy Changes         0.163191
+    Finance Changes        0.059207
+    Health Care Changes    0.118481
+    Technology Changes     0.084176
+    dtype: float64
 
 
 
 
 ```python
-day_name = ['Friday','Monday','Saturday','Sunday','Thursday','Tuesday','Wednesday']
+peak = delta_avg[(abs(delta_avg) >= 0.163191).any(axis=1)]
 ```
 
 
 ```python
-max_day = zip(max_day, day_name)
-max(max_day)
+peak.head()
 ```
 
 
 
 
-    (504858, 'Tuesday')
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Energy Changes</th>
+      <th>Finance Changes</th>
+      <th>Health Care Changes</th>
+      <th>Technology Changes</th>
+    </tr>
+    <tr>
+      <th>Timestamp</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2008-08-10 10:10:10</th>
+      <td>0.271934</td>
+      <td>-0.048996</td>
+      <td>-0.069831</td>
+      <td>-0.033595</td>
+    </tr>
+    <tr>
+      <th>2008-10-10 10:10:10</th>
+      <td>0.483709</td>
+      <td>0.131039</td>
+      <td>0.320536</td>
+      <td>0.340418</td>
+    </tr>
+    <tr>
+      <th>2008-11-10 10:10:10</th>
+      <td>0.192015</td>
+      <td>0.068335</td>
+      <td>0.228251</td>
+      <td>0.217602</td>
+    </tr>
+    <tr>
+      <th>2009-03-10 10:10:10</th>
+      <td>0.176872</td>
+      <td>0.069709</td>
+      <td>0.133102</td>
+      <td>0.045064</td>
+    </tr>
+    <tr>
+      <th>2009-04-10 10:10:10</th>
+      <td>-0.167232</td>
+      <td>-0.116181</td>
+      <td>-0.137381</td>
+      <td>-0.224170</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 
 
-
-Day with highest counts is Tuesday.
 
 
 ```python
-min_day = final_df.groupby(['NameDay'])['Count'].sum()
+plot_cols = list(delta_avg)
+
+fig, axes = plt.subplots(4,1, figsize=(10,7), sharex=True)
+delta_avg[plot_cols].plot(subplots=True, ax=axes)
+
+for shade in range(len(peak)):
+    peak_bgn = peak.index[shade]
+    if peak.index[shade].month == 12:
+        year = peak.index[shade].year+1
+        end = (year, 1, 10, 10, 10, 10)
+        dt_obj = datetime(*end[0:6])
+        peak_end = pd.to_datetime(dt_obj)
+        
+    else:
+        mo = peak.index[shade].month + 1
+        end = (peak.index[shade].year, mo, 10, 10, 10, 10)
+        dt_obj = datetime(*end[0:6])
+        peak_end = pd.to_datetime(dt_obj)
+        
+    for ax in axes:
+        ax.axvspan(peak_bgn, peak_end, color=sns.xkcd_rgb['grey'], alpha=.5)
+    
+        ax.axhline(0, color='k', linestyle='-', linewidth=1)
+```
+
+
+![png](output_41_0.png)
+
+
+
+```python
+plot_cols = list(avg_T)
+
+fig, axes = plt.subplots(4,1, figsize=(10,7), sharex=True)
+avg_T[plot_cols].plot(subplots=True, ax=axes)
+
+for shade in range(len(peak)):
+    peak_bgn = peak.index[shade]
+    if peak.index[shade].month == 12:
+        year = peak.index[shade].year+1
+        end = (year, 1, 10, 10, 10, 10)
+        dt_obj = datetime(*end[0:6])
+        peak_end = pd.to_datetime(dt_obj)
+        
+    else:
+        mo = peak.index[shade].month + 1
+        end = (peak.index[shade].year, mo, 10, 10, 10, 10)
+        dt_obj = datetime(*end[0:6])
+        peak_end = pd.to_datetime(dt_obj)
+        
+    for ax in axes:
+        ax.axvspan(peak_bgn, peak_end, color=sns.xkcd_rgb['grey'], alpha=.5)
+    
+        ax.axhline(0, color='k', linestyle='-', linewidth=1)
+```
+
+
+![png](output_42_0.png)
+
+
+
+```python
+peak.index[0]
+```
+
+
+
+
+    Timestamp('2008-08-10 10:10:10')
+
+
+
+
+```python
+peak.index[1].month - peak.index[0].month == 0
+```
+
+
+
+
+    False
+
+
+
+
+```python
+peak_shade = []
+for l in range(len(peak)-1):
+    if peak.index[l+1].year == peak.index[1].year:
+        if peak.index[l+1].month - peak.index[1].month == 1:
+            start = peak.index[l]
+        else:
+            start = peak.index[l-1]
+            peak_shade.append(start)
+    else:
+        start = peak.index[l-1]
+        peak_shade.append(start)
 ```
 
 
 ```python
-min_day = zip(min_day, day_name)
-min(min_day)
+peak_shade
 ```
 
 
 
 
-    (421400, 'Sunday')
+    [Timestamp('2016-09-10 10:10:10'),
+     Timestamp('2008-10-10 10:10:10'),
+     Timestamp('2008-11-10 10:10:10'),
+     Timestamp('2009-03-10 10:10:10'),
+     Timestamp('2009-04-10 10:10:10'),
+     Timestamp('2009-12-10 10:10:10'),
+     Timestamp('2011-08-10 10:10:10'),
+     Timestamp('2014-12-10 10:10:10'),
+     Timestamp('2015-12-10 10:10:10'),
+     Timestamp('2016-01-10 10:10:10'),
+     Timestamp('2016-02-10 10:10:10')]
 
 
 
-Day with lowest counts is Sunday.
 
-__Exercise 2.3.__ What would be an effective way to present the information in exercise 2.2? You don't need to write any code for this exercise, just discuss what you would do.
+```python
+peak
+```
 
-An effect way would be through a table as I did, or rather through a data frame.  Flow or organization charts would also be visually helpful--similiar to that of the video in Lesson 4.
+
+
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Energy Changes</th>
+      <th>Finance Changes</th>
+      <th>Health Care Changes</th>
+      <th>Technology Changes</th>
+    </tr>
+    <tr>
+      <th>Timestamp</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2008-08-10 10:10:10</th>
+      <td>0.271934</td>
+      <td>-0.048996</td>
+      <td>-0.069831</td>
+      <td>-0.033595</td>
+    </tr>
+    <tr>
+      <th>2008-10-10 10:10:10</th>
+      <td>0.483709</td>
+      <td>0.131039</td>
+      <td>0.320536</td>
+      <td>0.340418</td>
+    </tr>
+    <tr>
+      <th>2008-11-10 10:10:10</th>
+      <td>0.192015</td>
+      <td>0.068335</td>
+      <td>0.228251</td>
+      <td>0.217602</td>
+    </tr>
+    <tr>
+      <th>2009-03-10 10:10:10</th>
+      <td>0.176872</td>
+      <td>0.069709</td>
+      <td>0.133102</td>
+      <td>0.045064</td>
+    </tr>
+    <tr>
+      <th>2009-04-10 10:10:10</th>
+      <td>-0.167232</td>
+      <td>-0.116181</td>
+      <td>-0.137381</td>
+      <td>-0.224170</td>
+    </tr>
+    <tr>
+      <th>2009-12-10 10:10:10</th>
+      <td>-0.164439</td>
+      <td>-0.008523</td>
+      <td>-0.037643</td>
+      <td>-0.058359</td>
+    </tr>
+    <tr>
+      <th>2011-08-10 10:10:10</th>
+      <td>0.388879</td>
+      <td>0.103690</td>
+      <td>0.199786</td>
+      <td>0.153049</td>
+    </tr>
+    <tr>
+      <th>2014-12-10 10:10:10</th>
+      <td>0.316577</td>
+      <td>-0.002436</td>
+      <td>-0.008372</td>
+      <td>-0.014644</td>
+    </tr>
+    <tr>
+      <th>2015-12-10 10:10:10</th>
+      <td>0.186521</td>
+      <td>0.014430</td>
+      <td>0.022265</td>
+      <td>0.002597</td>
+    </tr>
+    <tr>
+      <th>2016-01-10 10:10:10</th>
+      <td>0.272163</td>
+      <td>0.045146</td>
+      <td>0.184826</td>
+      <td>0.120864</td>
+    </tr>
+    <tr>
+      <th>2016-02-10 10:10:10</th>
+      <td>0.188164</td>
+      <td>0.033947</td>
+      <td>0.142778</td>
+      <td>0.042605</td>
+    </tr>
+    <tr>
+      <th>2016-03-10 10:10:10</th>
+      <td>-0.259750</td>
+      <td>-0.042696</td>
+      <td>-0.047555</td>
+      <td>-0.056975</td>
+    </tr>
+    <tr>
+      <th>2016-09-10 10:10:10</th>
+      <td>-0.163973</td>
+      <td>-0.022106</td>
+      <td>-0.045245</td>
+      <td>-0.022420</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+## Test: Which month has the highest volatility?
+
+
+```python
+# double check, would it make more sense to look at sum of absolute changes?
+# This wouldn't give us direction though.
+abs_delta_df = abs(delta_df)
+months = abs_delta_df.groupby(delta_df.index.month).sum()
+months
+```
+
+
+
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Energy Changes</th>
+      <th>Finance Changes</th>
+      <th>Health Care Changes</th>
+      <th>Technology Changes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>5.579697</td>
+      <td>2.292274</td>
+      <td>3.983668</td>
+      <td>3.575874</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>5.153948</td>
+      <td>1.725488</td>
+      <td>3.177925</td>
+      <td>2.995240</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>5.517229</td>
+      <td>2.258931</td>
+      <td>4.191325</td>
+      <td>3.491156</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4.583842</td>
+      <td>1.896602</td>
+      <td>3.660335</td>
+      <td>3.011856</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>5.179666</td>
+      <td>1.909797</td>
+      <td>3.654547</td>
+      <td>3.306427</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>4.531683</td>
+      <td>2.211246</td>
+      <td>3.878905</td>
+      <td>3.338665</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>4.570591</td>
+      <td>1.928904</td>
+      <td>3.694508</td>
+      <td>3.224373</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>5.905949</td>
+      <td>2.439180</td>
+      <td>3.975516</td>
+      <td>3.614457</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>5.347203</td>
+      <td>2.091582</td>
+      <td>3.754380</td>
+      <td>3.259025</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>6.048092</td>
+      <td>2.669991</td>
+      <td>4.596439</td>
+      <td>4.065775</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>5.547477</td>
+      <td>2.488493</td>
+      <td>3.521998</td>
+      <td>4.112071</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>4.527409</td>
+      <td>2.301069</td>
+      <td>3.779710</td>
+      <td>3.537954</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+months["total"] = months.sum(axis=1)
+months.head()
+```
+
+
+
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Energy Changes</th>
+      <th>Finance Changes</th>
+      <th>Health Care Changes</th>
+      <th>Technology Changes</th>
+      <th>total</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>5.579697</td>
+      <td>2.292274</td>
+      <td>3.983668</td>
+      <td>3.575874</td>
+      <td>15.431513</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>5.153948</td>
+      <td>1.725488</td>
+      <td>3.177925</td>
+      <td>2.995240</td>
+      <td>13.052601</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>5.517229</td>
+      <td>2.258931</td>
+      <td>4.191325</td>
+      <td>3.491156</td>
+      <td>15.458640</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4.583842</td>
+      <td>1.896602</td>
+      <td>3.660335</td>
+      <td>3.011856</td>
+      <td>13.152635</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>5.179666</td>
+      <td>1.909797</td>
+      <td>3.654547</td>
+      <td>3.306427</td>
+      <td>14.050437</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+sns.set_style("white")
+sns.set_context({"figure.figsize": (20, 10)})
+```
+
+
+```python
+sns.barplot(x = months.index, y = months.total, color = "red")
+health_plot = sns.barplot(x = months.index, y = months['Health Care Changes']+months['Energy Changes']+months['Finance Changes'], color = "yellow")
+fin_plot = sns.barplot(x = months.index, y = months['Finance Changes']+months['Energy Changes'], color = "blue")
+eng_plot = sns.barplot(x = months.index, y = months['Energy Changes'], color = "green")
+
+topbar = plt.Rectangle((0,0),1,1,fc="red", edgecolor = 'none')
+bottombar = plt.Rectangle((0,0),1,1,fc='#0000A3',  edgecolor = 'none')
+l = plt.legend([bottombar, topbar], ['Energy Changes', 'Finance Changes'], loc=1, ncol = 2, prop={'size':16})
+l.draw_frame(False)
+
+#Optional code - Make plot look nicer
+sns.despine(left=True)
+eng_plot.set_ylabel("Total Absolute Closing Price Changs")
+eng_plot.set_xlabel("Months")
+
+#Set fonts to consistent 16pt size
+for item in ([bottom_plot.xaxis.label, bottom_plot.yaxis.label] +
+             bottom_plot.get_xticklabels() + bottom_plot.get_yticklabels()):
+    item.set_fontsize(16)
+```
+
+
+    ---------------------------------------------------------------------------
+
+    NameError                                 Traceback (most recent call last)
+
+    <ipython-input-51-8d91579b026d> in <module>()
+         16 #Set fonts to consistent 16pt size
+         17 for item in ([bottom_plot.xaxis.label, bottom_plot.yaxis.label] +
+    ---> 18              bottom_plot.get_xticklabels() + bottom_plot.get_yticklabels()):
+         19     item.set_fontsize(16)
+
+
+    NameError: name 'bottom_plot' is not defined
+
+
+
+![png](output_52_1.png)
+
+
+
+```python
+
+```
+
+## Subset Data of Dataframe
+
+
+```python
+# 261 not right number, why is our last day 12-30-2016? -261 maybe?
+year = delta_df.iloc[-100:,:]
+
+plot_cols = list(year)
+
+# 2 axes for 2 subplots
+fig, axes = plt.subplots(4,1, figsize=(10,7), sharex=True)
+#delta_df[plot_cols].plot(subplots=True, ax=axes)
+year[plot_cols].plot(subplots=True, ax=axes)
+#plt.ylim([-0.20,0.150])
+plt.show()
+```
+
+
+![png](output_55_0.png)
+
+
+#### Mega-function with everything related to the NYT API inside (work in progress)
+
+
+```python
+from nytimesarticle import articleAPI
+import time
+# OLD KEY (hit my limit): api = articleAPI('2679a66fe8df4740b754f98e52ad068c')
+api = articleAPI('e031fcaf03da4b3c949e505c4aa69a5b')
+def news_articles(sector,start,end,pages):
+    sector_df = pd.DataFrame()
+    for i in range(pages):
+        try:
+            if sector == 'Health Care':
+                sector_articles = api.search( 
+                    q = 'Health',
+                    fq = {
+                        'news_desk':'Business',
+                        'section_name':'Business',
+                        'subject.contains':['Health','Drugs'],
+                        'type_of_material':'News'
+                    },
+                    begin_date = start,
+                    end_date = end,
+                    sort = 'oldest',
+                    page = i
+                )
+            if sector == 'Technology':
+                sector_articles = api.search(
+                    fq = {
+                        'news_desk.contains':'Business',
+                        'section_name':'Technology',
+                        'subject.contains':['Acquisitions'],
+                        'type_of_material':'News'
+                    },
+                    begin_date = start,
+                    end_date = end,
+                    sort = 'oldest',
+                    page = i
+                )
+            if sector == 'Energy':
+                sector_articles = api.search( 
+                    q = 'Energy & Environment',
+                    fq = {
+                        'news_desk':'Business',
+                        'subject.contains':['Energy','Renewable','Gas','Acquisitions'],
+                        'section_name':'Business',
+                        'type_of_material':'News'
+                    }, 
+                    begin_date = start,
+                    end_date = end,
+                    sort = 'oldest',
+                    page = i
+                )
+            if sector == 'Finance':
+                sector_articles = api.search( 
+                    q = 'Finance',
+                    fq = {
+                        'news_desk':'Business',
+                        'subject.contains':['Banking','Financial'],
+                        'section_name':'Business',
+                        'type_of_material':'News'
+                    }, 
+                    begin_date = start,
+                    end_date = end,
+                    sort = 'oldest',
+                    page = i
+                )
+            df_i = sector_articles['response']['docs']
+            sector_df = sector_df.append(df_i) 
+            time.sleep(0.5)   # API only allows 5 calls per second. This slows it down!
+        except KeyError:
+            break
+        except IndexError:
+            break
+    return sector_df.reset_index()
+```
+
+###### Important Notes:
+**Asking for over 100 pages at once (necessary for a 10-year span) leads to unpredictable results.**
+* Ideally I would do something like: ```news_articles('Health Care',20060101,20170101,500)```, but the function simply stops running around 110~120 pages.
+* My solution: Split the desired time frame, make separate calls, concatenate the results, save locally
+* Even with this work-around, it takes multiple tries to obtain the correct result.
+
+
+```python
+'''
+The following code locally stores the news data. Please do not run this block!
+
+healthcare_news1 = news_articles('Health Care',20060101,20091231,100)
+healthcare_news2 = news_articles('Health Care',20100101,20131231,100)
+healthcare_news3 = news_articles('Health Care',20140101,20161231,100)
+healthcare_news = pd.concat([healthcare_news1,healthcare_news2,healthcare_news3],ignore_index=True)
+healthcare_news['Sector'] = 'Health Care'
+tech_news = news_articles('Technology',100)
+tech_news['Sector'] = 'Technology'
+energy_news1 = news_articles('Energy',20060101,20091231,100)
+energy_news2 = news_articles('Energy',20100101,20131231,100)
+energy_news3 = news_articles('Energy',20140101,20161231,100)
+energy_news = pd.concat([energy_news1,energy_news2,energy_news3])
+energy_news['Sector']='Energy'
+finance_news1 = news_articles('Finance',20060101,20091231,100)
+finance_news2 = news_articles('Finance',20100101,20131231,100)
+finance_news3 = news_articles('Finance',20140101,20161231,100)
+finance_news = pd.concat([finance_news1,finance_news2,finance_news3])
+finance_news['Sector']='Finance'
+all_news = pd.concat([healthcare_news,tech_news,energy_news,finance_news],ignore_index=True)
+# all_news.to_pickle('news_df')
+'''
+```
+
+
+
+
+    "\nThe following code locally stores the news data. Please do not run this block!\n\nhealthcare_news1 = news_articles('Health Care',20060101,20091231,100)\nhealthcare_news2 = news_articles('Health Care',20100101,20131231,100)\nhealthcare_news3 = news_articles('Health Care',20140101,20161231,100)\nhealthcare_news = pd.concat([healthcare_news1,healthcare_news2,healthcare_news3],ignore_index=True)\nhealthcare_news['Sector'] = 'Health Care'\ntech_news = news_articles('Technology',100)\ntech_news['Sector'] = 'Technology'\nenergy_news1 = news_articles('Energy',20060101,20091231,100)\nenergy_news2 = news_articles('Energy',20100101,20131231,100)\nenergy_news3 = news_articles('Energy',20140101,20161231,100)\nenergy_news = pd.concat([energy_news1,energy_news2,energy_news3])\nenergy_news['Sector']='Energy'\nfinance_news1 = news_articles('Finance',20060101,20091231,100)\nfinance_news2 = news_articles('Finance',20100101,20131231,100)\nfinance_news3 = news_articles('Finance',20140101,20161231,100)\nfinance_news = pd.concat([finance_news1,finance_news2,finance_news3])\nfinance_news['Sector']='Finance'\nall_news = pd.concat([healthcare_news,tech_news,energy_news,finance_news],ignore_index=True)\n# all_news.to_pickle('news_df')\n"
+
+
+
+
+```python
+all_news = pd.read_pickle('news_df')
+# Convert dates to index
+all_news['pub_date'] = pd.to_datetime(all_news.pub_date)
+all_news = all_news.set_index(all_news['pub_date'])
+```
+
+
+```python
+headlines = [d.get('main') for d in all_news.headline]
+dates = list(pd.to_datetime(all_news['pub_date']))
+# Pandas categorical objects have integer values mapped to them:
+sector_levels = all_news['Sector'].astype('category').cat.codes
+
+# Data Frame for plot.ly Timeline:
+pltdf = pd.DataFrame(
+    {'Date':dates,
+     'Title':headlines,
+     'Sector':all_news.Sector,  
+     'Level':sector_levels
+    })
+```
+
+### Timeline:
+
+
+```python
+import plotly.plotly as py
+import plotly.graph_objs as go
+
+fig = {
+    'data': [
+        {
+            'x': pltdf[pltdf['Sector']==sector]['Date'],
+            'y': pltdf[pltdf['Sector']==sector]['Level'],
+            'text': pltdf[pltdf['Sector']==sector]['Title'],
+            'name': sector, 'mode': 'markers',
+        } for sector in reversed(all_news['Sector'].astype('category').cat.categories)
+        ]
+    }
+py.iplot(fig, filename='plotly_test')
+```
+
+
+
+
+<iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="https://plot.ly/~audchu/38.embed" height="525px" width="100%"></iframe>
+
+
+
+# Analysis of Vocabulary in News Headlines
+Using the peak changes as the periods of interest, we analyzed the words contained in the news articles headlines for those months.
+
+
+```python
+import string
+import nltk
+import regex as re
+from collections import Counter
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+import wordcloud
+```
+
+
+```python
+tokenize = nltk.word_tokenize
+def stem(tokens,stemmer = PorterStemmer().stem):
+    return [stemmer(w.lower()) for w in tokens] 
+# http://stackoverflow.com/questions/11066400/remove-punctuation-from-unicode-formatted-strings
+def remove_punctuation(text):
+    return re.sub(ur"\p{P}+", "", text)
+```
+
+
+```python
+def CloudPlots(data):
+    text = data.lead_paragraph.str.cat(sep = ' ')
+    text = text.lower()
+    text = remove_punctuation(text)
+    tokens = tokenize(text)
+    filtered = [w for w in tokens if not w in stopwords.words('english')]
+    filtered = stem(filtered)
+    count = Counter(filtered)
+    # top 100 words:
+    top_words = dict(count.most_common(100))
+    cloud = wordcloud.WordCloud(background_color="white")
+    wc = cloud.generate_from_frequencies(top_words)
+    return(wc)
+```
+
+
+```python
+peak
+```
+
+
+
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Energy Changes</th>
+      <th>Finance Changes</th>
+      <th>Health Care Changes</th>
+      <th>Technology Changes</th>
+    </tr>
+    <tr>
+      <th>Timestamp</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2008-08-10 10:10:10</th>
+      <td>0.271934</td>
+      <td>-0.048996</td>
+      <td>-0.069831</td>
+      <td>-0.033595</td>
+    </tr>
+    <tr>
+      <th>2008-10-10 10:10:10</th>
+      <td>0.483709</td>
+      <td>0.131039</td>
+      <td>0.320536</td>
+      <td>0.340418</td>
+    </tr>
+    <tr>
+      <th>2008-11-10 10:10:10</th>
+      <td>0.192015</td>
+      <td>0.068335</td>
+      <td>0.228251</td>
+      <td>0.217602</td>
+    </tr>
+    <tr>
+      <th>2009-03-10 10:10:10</th>
+      <td>0.176872</td>
+      <td>0.069709</td>
+      <td>0.133102</td>
+      <td>0.045064</td>
+    </tr>
+    <tr>
+      <th>2009-04-10 10:10:10</th>
+      <td>-0.167232</td>
+      <td>-0.116181</td>
+      <td>-0.137381</td>
+      <td>-0.224170</td>
+    </tr>
+    <tr>
+      <th>2009-12-10 10:10:10</th>
+      <td>-0.164439</td>
+      <td>-0.008523</td>
+      <td>-0.037643</td>
+      <td>-0.058359</td>
+    </tr>
+    <tr>
+      <th>2011-08-10 10:10:10</th>
+      <td>0.388879</td>
+      <td>0.103690</td>
+      <td>0.199786</td>
+      <td>0.153049</td>
+    </tr>
+    <tr>
+      <th>2014-12-10 10:10:10</th>
+      <td>0.316577</td>
+      <td>-0.002436</td>
+      <td>-0.008372</td>
+      <td>-0.014644</td>
+    </tr>
+    <tr>
+      <th>2015-12-10 10:10:10</th>
+      <td>0.186521</td>
+      <td>0.014430</td>
+      <td>0.022265</td>
+      <td>0.002597</td>
+    </tr>
+    <tr>
+      <th>2016-01-10 10:10:10</th>
+      <td>0.272163</td>
+      <td>0.045146</td>
+      <td>0.184826</td>
+      <td>0.120864</td>
+    </tr>
+    <tr>
+      <th>2016-02-10 10:10:10</th>
+      <td>0.188164</td>
+      <td>0.033947</td>
+      <td>0.142778</td>
+      <td>0.042605</td>
+    </tr>
+    <tr>
+      <th>2016-03-10 10:10:10</th>
+      <td>-0.259750</td>
+      <td>-0.042696</td>
+      <td>-0.047555</td>
+      <td>-0.056975</td>
+    </tr>
+    <tr>
+      <th>2016-09-10 10:10:10</th>
+      <td>-0.163973</td>
+      <td>-0.022106</td>
+      <td>-0.045245</td>
+      <td>-0.022420</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+**We have visualized two periods where the volatility persisted for an exceptional length:**
+* 8/2008 to 11/2008
+* 12/2015 to 3/2016
+
+
+```python
+# (1) Subset the data:
+sample1 = all_news['2008-8-10 10:10:10':'2008-11-10 10:10:10']
+sample1_sector = sample1.groupby("Sector")  # a groupby object
+```
+
+
+```python
+fig = plt.figure()
+fig.suptitle("NYT Most Used Terms: Aug.2008 to Nov.2008", fontsize=30)
+for counter, sect in enumerate(all_news.Sector.unique()):
+    wc = CloudPlots(sample1_sector.get_group(sect))
+    ax = fig.add_subplot(2,2,counter+1)
+    ax.set_title("%s Sector" %sect,fontsize=23)
+    plt.imshow(wc)
+    plt.axis("off")
+```
+
+
+![png](output_71_0.png)
+
+
+
+```python
+# (2) Subset the data:
+sample2 = all_news['2015-12-10 10:10:10':'2016-03-10 10:10:10']
+sample2_sector = sample2.groupby("Sector")
+```
+
+
+```python
+fig = plt.figure()
+fig.suptitle("NYT Most Used Terms: Dec.2015 to Mar.2016", fontsize=30)
+for counter, sect in enumerate(all_news.Sector.unique()):
+    wc = CloudPlots(sample2_sector.get_group(sect))
+    ax = fig.add_subplot(2,2,counter+1)
+    ax.set_title("%s Sector" %sect,fontsize=23)
+    plt.imshow(wc)
+    plt.axis("off")
+```
+
+
+![png](output_73_0.png)
+
+
+# Time Series Analysis
+
+
+```python
+ts_eng = delta_df['Energy Changes']
+# Why do we get an NA for Nov 1 2016?
+# Need to change following date range
+# ts_eng['2016-11-02':'2017-03-01']
+```
+
+## Check Stationarity
+
+Dickey-Fuller Test: tests the null hypothesis of whether a u nit root is present in an autoregressive model.  
+
+
+```python
+from statsmodels.tsa.stattools import adfuller
+def test_stationarity(timeseries):
+    
+    #Determing rolling statistics
+    rolmean = pd.rolling_mean(timeseries, window=12)
+    rolstd = pd.rolling_std(timeseries, window=12)
+
+    #Plot rolling statistics:
+    orig = plt.plot(timeseries, color='blue',label='Original')
+    mean = plt.plot(rolmean, color='red', label='Rolling Mean')
+    std = plt.plot(rolstd, color='black', label = 'Rolling Std')
+    plt.legend(loc='best')
+    plt.title('Rolling Mean & Standard Deviation')
+    plt.show(block=False)
+    
+    #Perform Dickey-Fuller test:
+    print('Results of Dickey-Fuller Test:')
+    dftest = adfuller(timeseries, autolag='AIC')
+    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
+    for key,value in dftest[4].items():
+        dfoutput['Critical Value (%s)'%key] = value
+    print(dfoutput)
+
+```
+
+test_stationarity(ts_eng)
+
+
+```python
+testE = delta_df["Energy Changes"]
+```
+
+# Energy Sector Time Series
+
+
+```python
+E_log = np.log(avg_T.iloc[-365:,:]['Health Care'])
+```
+
+
+```python
+E_log_diff = E_log - E_log.shift()
+plt.plot(E_log_diff)
+```
+
+
+```python
+fig = plt.figure(figsize=(8,8))
+ax1 = fig.add_subplot(211) 
+fig = sm.graphics.tsa.plot_acf(E_log_diff[1:].values.squeeze(),lags = 40,ax=ax1)
+plt.ylim([-0.15,0.15])
+ax2 = fig.add_subplot(212)
+fig = sm.graphics.tsa.plot_pacf(E_log_diff[1:],lags =40, ax= ax2)
+plt.ylim([-0.15,0.15])
+```
+
+
+```python
+E_log_diff.dropna(inplace=True)
+test_stationarity(E_log_diff)
+```
+
+
+```python
+
+```
