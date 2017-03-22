@@ -1556,7 +1556,7 @@ plt.show()
 ```
 
 
-![png](output_35_0.png)
+![png](tues_test/output_35_0.png)
 
 
 ### Changes of Average Stock Price by Month
@@ -1887,7 +1887,7 @@ plt.show()
 ```
 
 
-![png](output_43_0.png)
+![png](tues_test/output_43_0.png)
 
 
 
@@ -2039,7 +2039,7 @@ for shade in range(len(peak)):
 ```
 
 
-![png](output_48_0.png)
+![png](tues_test/output_48_0.png)
 
 
 
@@ -2456,7 +2456,7 @@ for item in ([bottom_plot.xaxis.label, bottom_plot.yaxis.label] +
 
 
 
-![png](output_58_1.png)
+![png](tues_test/output_58_1.png)
 
 
 ## Subset Data of Dataframe
@@ -2477,7 +2477,7 @@ plt.show()
 ```
 
 
-![png](output_60_0.png)
+![png](tues_test/output_60_0.png)
 
 
 # Collecting Relevant News Articles from The New York Times
@@ -2767,19 +2767,19 @@ for counter,sector in enumerate(word_freq_list):
 ```
 
 
-![png](output_77_0.png)
+![png](tues_test/output_77_0.png)
 
 
 
-![png](output_77_1.png)
+![png](tues_test/output_77_1.png)
 
 
 
-![png](output_77_2.png)
+![png](tues_test/output_77_2.png)
 
 
 
-![png](output_77_3.png)
+![png](tues_test/output_77_3.png)
 
 
 
@@ -2798,7 +2798,7 @@ for counter, sect in enumerate(word_freq_list):
 ```
 
 
-![png](output_78_0.png)
+![png](tues_test/output_78_0.png)
 
 
 ###### Note: The plotted terms are stemmed to omit any possible duplicates in the analysis.
@@ -2821,19 +2821,19 @@ for counter,sector in enumerate(word_freq_list2):
 ```
 
 
-![png](output_80_0.png)
+![png](tues_test/output_80_0.png)
 
 
 
-![png](output_80_1.png)
+![png](tues_test/output_80_1.png)
 
 
 
-![png](output_80_2.png)
+![png](tues_test/output_80_2.png)
 
 
 
-![png](output_80_3.png)
+![png](tues_test/output_80_3.png)
 
 
 
@@ -2852,7 +2852,7 @@ for counter, sect in enumerate(word_freq_list2):
 ```
 
 
-![png](output_81_0.png)
+![png](tues_test/output_81_0.png)
 
 
 ###### Some observable differences exist between the first set (2008) and the second set (2015-2016). 
@@ -2929,7 +2929,7 @@ plt.plot(E_log_diff)
 
 
 
-![png](output_91_1.png)
+![png](tues_test/output_91_1.png)
 
 
 
@@ -2951,7 +2951,7 @@ plt.ylim([-0.15,0.15])
 
 
 
-![png](output_92_1.png)
+![png](tues_test/output_92_1.png)
 
 
 
@@ -2973,7 +2973,7 @@ test_stationarity(E_log_diff)
 
 
 
-![png](output_93_1.png)
+![png](tues_test/output_93_1.png)
 
 
     Results of Dickey-Fuller Test:
@@ -2996,7 +2996,7 @@ test_stationarity(E_log_diff)
 ```python
 
 ```
-output_35_0.png)
+![png](tues_test/output_35_0.png)
 
 
 ### Changes of Average Stock Price by Month
