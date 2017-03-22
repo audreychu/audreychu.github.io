@@ -4,14 +4,14 @@
 # NASDAQ Stock Indices
 
 #### March 2017
-<u>Statistics 141B:</u> Data and Web Technologies<br>
-<u>Contributors:</u> Jeremy Weidner, Weizhou Wang, Audrey Chu, and Yuji Mori
+<u>Statistics 141B</u>: Data and Web Technologies<br>
+<u>Contributors</u>: Jeremy Weidner, Weizhou Wang, Audrey Chu, and Yuji Mori
 
-### I. Abstract
+### Abstract
 
 To study NASDAQ stock prices for the technology, finance, health care, and energy industry sectors across time.  With the application of python and utilization of the Yahoo! Finance API, Yahoo Query Language (YQL), and New York Times API, we will gather and clean out a dataset for a time period of ten years for approximately 1770 companies.  Our data will incorporate the closing prices for each day and then average these prices for each respective sector.  In analyzing the stock prices, we will use interactive data visualization as well as attempt to create a time series ARIMA (Autoregressive Integrated Moving Average) model.
 
-### II. Questions of Interest
+### Questions of Interest
 - How do stock prices differ among industry sectors?
 - Can we explain unusual trends in past prices by relating them to major historical events?
 - Which month for which sector has the least volatility?
@@ -25,29 +25,19 @@ import requests
 import requests_cache
 import numpy as np
 import pandas as pd
-#from yahoo_finance import Share
 from pprint import pprint 
 from datetime import datetime
 import matplotlib.pyplot as plt
 import math
-
 import matplotlib as mpl
 %matplotlib inline
-
 import seaborn as sns
 sns.set_style('white', {"xtick.major.size": 2, "ytick.major.size": 2})
 flatui = ["#9b59b6", "#3498db", "#95a5a6", "#e74c3c", "#34495e", "#2ecc71","#f4cae4"]
 sns.set_palette(sns.color_palette(flatui,7))
-
 import missingno as msno
 
-#this is for time series
-from  __future__ import print_function
-from scipy import stats
-import statsmodels.api as sm
-from statsmodels.graphics.api import qqplot
-
-#this is for plotting the prices
+# Price Plots
 import plotly
 plotly.tools.set_credentials_file(username="audchu",api_key="fPSZjEJ6wqYjzolZ8wNI")
 import plotly.plotly as py
@@ -55,9 +45,31 @@ import plotly.graph_objs as go
 from datetime import datetime
 from pandas_datareader import data,wb
 
-#this is for streaming plot
+# Streaming Plot
 from plotly.grid_objs import Grid,Column
 import time
+
+# Accessing the NY Times API
+from nytimesarticle import articleAPI
+
+# Webscraping and Text Processing
+from bs4 import BeautifulSoup
+import urllib2
+from urllib2 import urlopen
+import string
+import nltk
+import regex as re
+from collections import Counter
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+import wordcloud
+import pickle
+
+# Time Series
+from  __future__ import print_function
+from scipy import stats
+import statsmodels.api as sm
+from statsmodels.graphics.api import qqplot
 ```
 
 
@@ -67,7 +79,7 @@ requests_cache.install_cache('cache')
 
 
 ```python
-# Yahoo! YQL API
+# Yahoo YQL API
 PUBLIC_API_URL = 'https://query.yahooapis.com/v1/public/yql'
 OAUTH_API_URL = 'https://query.yahooapis.com/v1/yql'
 DATATABLES_URL = 'store://datatables.org/alltableswithkeys'
@@ -121,10 +133,15 @@ def price2(ticker):
     return table1
 ```
 
+## I. Data Extraction
+
+We begin by extracting our main dataset which comes from the Yahoo Finance API. We extracted stock closing prices for each stock currently in the Nasdaq. We do this via requests using a YQL query to the historical data table of the API. Not every stock currently in the Nasdaq was around from when we started extracting in 2006 and so they're values are NA until they IPO. The weights of these additions when they happen are not believed to be of substantial impact to our analysis of price because we aggregate over 4 sectors across roughly 1700 stocks. If you look closely at the function it iterates by year because if you request over 364 values there is an undocumented error where you get returned an empty JSON object.
+
+List of companies on NASDAQ can be found here: http://www.nasdaq.com/screening/company-list.aspx
+
 
 ```python
 csv = pd.read_csv('./companylist.csv')
-# We want to keep "Finance, Health Care, Technology, Energy"
 newcsv = csv[csv["Sector"].isin(["Finance", "Energy","Health Care","Technology"])].reset_index()
 del newcsv["index"]
 ```
@@ -162,8 +179,8 @@ df = pd.read_pickle('mydf')
 
 
 ```python
-# This allows us to control size of a dataframe displayed to examine our data in depth
-pd.options.display.max_columns = 20
+# Manipulate size of dataframe for further inspection
+pd.options.display.max_columns = 15
 pd.options.display.max_rows = 30
 ```
 
@@ -187,13 +204,7 @@ df.head()
       <th>TWOU</th>
       <th>JOBS</th>
       <th>ABEO</th>
-      <th>ABIL</th>
-      <th>ABMD</th>
-      <th>AXAS</th>
       <th>...</th>
-      <th>ZLTQ</th>
-      <th>ZN</th>
-      <th>ZION</th>
       <th>ZIONW</th>
       <th>ZIOP</th>
       <th>ZIXI</th>
@@ -204,12 +215,6 @@ df.head()
     </tr>
     <tr>
       <th>Date</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
       <th></th>
       <th></th>
       <th></th>
@@ -237,13 +242,7 @@ df.head()
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
       <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -261,13 +260,7 @@ df.head()
       <td>NaN</td>
       <td>14.95</td>
       <td>0.51</td>
-      <td>NaN</td>
-      <td>9.35</td>
-      <td>5.55</td>
       <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>76.480003</td>
       <td>NaN</td>
       <td>3.60</td>
       <td>1.93</td>
@@ -285,13 +278,7 @@ df.head()
       <td>NaN</td>
       <td>14.79</td>
       <td>0.47</td>
-      <td>NaN</td>
-      <td>9.62</td>
-      <td>5.55</td>
       <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>77.019997</td>
       <td>NaN</td>
       <td>4.00</td>
       <td>2.04</td>
@@ -309,13 +296,7 @@ df.head()
       <td>NaN</td>
       <td>16.15</td>
       <td>0.46</td>
-      <td>NaN</td>
-      <td>9.55</td>
-      <td>5.81</td>
       <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>77.720001</td>
       <td>NaN</td>
       <td>4.00</td>
       <td>2.20</td>
@@ -333,13 +314,7 @@ df.head()
       <td>NaN</td>
       <td>17.08</td>
       <td>0.45</td>
-      <td>NaN</td>
-      <td>9.75</td>
-      <td>5.95</td>
       <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>78.529999</td>
       <td>NaN</td>
       <td>4.25</td>
       <td>2.09</td>
@@ -388,13 +363,7 @@ final.head()
       <th>2006-01-06 00:00:00</th>
       <th>2006-01-09 00:00:00</th>
       <th>2006-01-10 00:00:00</th>
-      <th>2006-01-11 00:00:00</th>
-      <th>2006-01-12 00:00:00</th>
-      <th>2006-01-13 00:00:00</th>
       <th>...</th>
-      <th>2016-12-20 00:00:00</th>
-      <th>2016-12-21 00:00:00</th>
-      <th>2016-12-22 00:00:00</th>
       <th>2016-12-23 00:00:00</th>
       <th>2016-12-26 00:00:00</th>
       <th>2016-12-27 00:00:00</th>
@@ -414,13 +383,7 @@ final.head()
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
       <td>...</td>
-      <td>7.601000</td>
-      <td>7.583000</td>
-      <td>7.400000</td>
       <td>7.650000</td>
       <td>NaN</td>
       <td>7.400000</td>
@@ -438,13 +401,7 @@ final.head()
       <td>20.519969</td>
       <td>20.249976</td>
       <td>19.999980</td>
-      <td>20.369968</td>
-      <td>20.000001</td>
-      <td>20.779999</td>
       <td>...</td>
-      <td>17.549999</td>
-      <td>17.350000</td>
-      <td>17.280001</td>
       <td>17.350000</td>
       <td>NaN</td>
       <td>18.100000</td>
@@ -462,13 +419,7 @@ final.head()
       <td>25.950002</td>
       <td>25.999997</td>
       <td>25.999997</td>
-      <td>25.999997</td>
-      <td>25.940002</td>
-      <td>25.989997</td>
       <td>...</td>
-      <td>45.000000</td>
-      <td>44.439999</td>
-      <td>44.400002</td>
       <td>44.200001</td>
       <td>NaN</td>
       <td>44.740002</td>
@@ -486,13 +437,7 @@ final.head()
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
       <td>...</td>
-      <td>7.320000</td>
-      <td>7.100000</td>
-      <td>6.990000</td>
       <td>7.050000</td>
       <td>NaN</td>
       <td>7.150000</td>
@@ -510,13 +455,7 @@ final.head()
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
       <td>...</td>
-      <td>33.049999</td>
-      <td>32.099998</td>
-      <td>30.740000</td>
       <td>30.809999</td>
       <td>NaN</td>
       <td>30.549999</td>
@@ -534,28 +473,22 @@ final.head()
 
 
 ```python
-hc = final[final['Sector'] == 'Health Care']
-```
-
-
-```python
-# take median within groups for each recorded date:
-avg_sector = final.groupby('Sector').median().reset_index('Sector')
-avg_sector = avg_sector.set_index('Sector')
-avg_sector = avg_sector.dropna(thresh=4, axis = 1) # this drops if a column does not have at least two non NA's
+# Take median of each group for recorded date
+med_sector = final.groupby('Sector').median().reset_index('Sector')
+med_sector = med_sector.set_index('Sector')
+med_sector = med_sector.dropna(thresh=4, axis = 1)        # Drop if a column less than two non-NAs
 ```
 
 
 ```python
 # Dates as index for plotting
-# This is basically the original DF (transposed and transposed back)
-# but the columns are now the Sector averages.
-avg_T = avg_sector.transpose()
+# Columns are now the Sector medians
+med_T = med_sector.transpose()
 ```
 
 
 ```python
-avg_T.head()
+med_T.head()
 ```
 
 
@@ -616,11 +549,29 @@ avg_T.head()
 
 
 ```python
+len(med_T)
+```
+
+
+
+
+    2769
+
+
+
+Above is the head of our final dataframe.  Indexed by the the dates from 2006 to 2016, the dataframe contains the median closing prices across all NASDAQ companies grouped by sector.  Note that prices have minimal changes across consecutive days, as expected.  It would be unusual to see a price change of more than 1.0 in one day.  To further investigate the stock price changes in the last decade, we decided to produce visual diagnostics.  
+
+## II. Data Visualization
+
+### Interactive Price Plots
+
+
+```python
 def ts_slider(sector,sec_name):
-    trace = go.Scatter(x=avg_T.index,y=sector)
+    trace = go.Scatter(x=med_T.index,y=sector)
     data = [trace]
     layout = dict(
-        title=sec_name + ' Sector Closing Prices: Time series with Range Slider',
+        title=sec_name + ' Sector Median Closing Prices: Time series with Range Slider',
         xaxis=dict(
             rangeselector=dict(
                 buttons=list([
@@ -654,30 +605,84 @@ def ts_slider(sector,sec_name):
 
 
 ```python
-ts_slider(avg_T.Energy,"Energy")
+ts_slider(med_T.Energy,"Energy")
 ```
 
 
 
 
-<iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="https://plot.ly/~audchu/58.embed" height="525px" width="100%"></iframe>
+<iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="https://plot.ly/~audchu/80.embed" height="525px" width="100%"></iframe>
 
 
+
+Above is one example of an interactive time series slider plot for the Energy sector.  Closing prices are highest in May 2007 at \$25.56 whereas loweset closing price is at \$3.49 in February 2016.  This plot allows to look further into detail.  Using the buttons as provided, we can pinpoint the exact day with the highest and lowest prices.  The highest price is actually at \$25.71 occurs on on May 15, 2007 and the lowest price occurs at \$2.93 on February 10, 2016 and February 16, 2016.  Additionally, looking at the plot by year, it is graphically obvious that the year 2008 had the highest drop in stock prices.  This is reasonable and aligns with the Recession of 2008.  There is also a noticable drop in 2014 and 2015; however, an explanation behind these years is not as clear as that of 2008.
+
+For that reason, let's try some more plots.
+
+#### Specifically, are Energy's general trends of fluctuation consistent across the other three sectors?
 
 
 ```python
+Energy = go.Scatter(x=med_T.index,y=med_T.Energy, name='Energy')
+Finance = go.Scatter(x=med_T.index,y=med_T.Finance, name='Finance')
+HealthCare = go.Scatter(x=med_T.index,y=med_T['Health Care'], name='Health Care')
+Technology = go.Scatter(x=med_T.index,y=med_T.Technology, name='Technology')
 
+
+data = [Energy, Finance, HealthCare, Technology]
+layout = dict(
+    title='Median Closing Prices: Time series with Range Slider',
+    xaxis=dict(
+        rangeselector=dict(
+            buttons=list([
+                dict(count=1,
+                    label='1m',
+                    step='month',
+                    stepmode='backward'),
+                dict(count=6,
+                    label='6m',
+                    step='month',
+                    stepmode='backward'),
+                dict(count=1,
+                    label='YTD',
+                    step='year',
+                    stepmode='todate'),
+                dict(count=1,
+                    label='1y',
+                    step='year',
+                    stepmode='backward'),
+                dict(step='all')
+            ])
+        ),
+        rangeslider=dict(),
+        type='date'
+    )
+)
+
+fig = dict(data=data, layout=layout)
+py.iplot(fig)
 ```
 
-## Volatility Analysis
+
+
+
+<iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="https://plot.ly/~audchu/82.embed" height="525px" width="100%"></iframe>
+
+
+
+Above is an overlaid interactive plot with closing price data for all four sectors.  Other sectors seem to be consistent with Energy sector between the years 2008 and 2010.  The Energy sector differs the most from other sectors in terms of variation.  Specifically, when looking between May 2008 and November 2008, the Energy sector is somewhat bimodal, with the first peak in July 2008 and second in October 2008.  In contrast, the other three sectors remain consistent with their closing prices.  
+
+This peaks the question: <b>what happened in this time period that the Energy sector was specifically affected?</b>  We already expect all stock prices to drop signficantly during the recession, but why are there sector-specific or unusually inconstitent fluctuations. To accurately measure these flucations relative to sector, we need to normalize the changes through volatility analysis.
+
+### Volatility Analysis
 
 
 ```python
-# A new DF for the difference between each day:
+# New dataframe for the difference between each day as a percentage
 delta_df = pd.DataFrame()
-for sect in avg_T.columns:
-    delta_df[sect] = np.log(avg_T[sect].shift(1)) - np.log(avg_T[sect])
-delta_df.columns = map(lambda name: '{} Changes'.format(name),avg_T.columns)
+for sect in med_T.columns:
+    delta_df[sect] = np.log(med_T[sect].shift(1)) - np.log(med_T[sect])
+delta_df.columns = map(lambda name: '{} Changes'.format(name),med_T.columns)
 
 # On what day did the stock price spike the most?
 abs(delta_df).idxmax()
@@ -773,74 +778,30 @@ plt.show()
 ```
 
 
-![png](output_27_0.png)
+![png](output_35_0.png)
 
 
 ### Changes of Average Stock Price by Month
 
 
 ```python
-avg_T.index= pd.to_datetime(avg_T.index)
-avg_month = avg_T.groupby([avg_T.index.year, avg_T.index.month]).mean()
+med_T.index= pd.to_datetime(med_T.index)
+avg_month = med_T.groupby([med_T.index.year, med_T.index.month]).mean()
 avg_month.head()
 ```
 
 
+    ---------------------------------------------------------------------------
+
+    NameError                                 Traceback (most recent call last)
+
+    <ipython-input-20-31aad96992d9> in <module>()
+    ----> 1 med_T.index= pd.to_datetime(med_T.index)
+          2 avg_month = med_T.groupby([med_T.index.year, med_T.index.month]).mean()
+          3 avg_month.head()
 
 
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Sector</th>
-      <th>Energy</th>
-      <th>Finance</th>
-      <th>Health Care</th>
-      <th>Technology</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th rowspan="5" valign="top">2006</th>
-      <th>1</th>
-      <td>14.183000</td>
-      <td>23.605500</td>
-      <td>7.159611</td>
-      <td>11.686500</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>15.404737</td>
-      <td>23.857619</td>
-      <td>7.334495</td>
-      <td>11.895263</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>14.699130</td>
-      <td>23.953911</td>
-      <td>7.656957</td>
-      <td>12.523913</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>15.968421</td>
-      <td>23.920786</td>
-      <td>7.665814</td>
-      <td>13.029474</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>17.850000</td>
-      <td>23.418863</td>
-      <td>7.096370</td>
-      <td>12.887273</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
+    NameError: name 'med_T' is not defined
 
 
 
@@ -872,11 +833,6 @@ for i in range(len(delta_avg)):
     dt = delta_avg.index[i] + (10, 10, 10, 10)
     dt_obj = datetime(*dt[0:6])
     col.append(pd.to_datetime(dt_obj))
-```
-
-
-```python
-
 ```
 
 
@@ -1153,13 +1109,8 @@ plt.show()
 ```
 
 
-![png](output_36_0.png)
+![png](output_43_0.png)
 
-
-
-```python
-
-```
 
 
 ```python
@@ -1279,15 +1230,15 @@ for shade in range(len(peak)):
 ```
 
 
-![png](output_41_0.png)
+![png](output_47_0.png)
 
 
 
 ```python
-plot_cols = list(avg_T)
+plot_cols = list(med_T)
 
 fig, axes = plt.subplots(4,1, figsize=(10,7), sharex=True)
-avg_T[plot_cols].plot(subplots=True, ax=axes)
+med_T[plot_cols].plot(subplots=True, ax=axes)
 
 for shade in range(len(peak)):
     peak_bgn = peak.index[shade]
@@ -1310,7 +1261,7 @@ for shade in range(len(peak)):
 ```
 
 
-![png](output_42_0.png)
+![png](output_48_0.png)
 
 
 
@@ -1716,7 +1667,7 @@ for item in ([bottom_plot.xaxis.label, bottom_plot.yaxis.label] +
 
     NameError                                 Traceback (most recent call last)
 
-    <ipython-input-51-8d91579b026d> in <module>()
+    <ipython-input-44-8d91579b026d> in <module>()
          16 #Set fonts to consistent 16pt size
          17 for item in ([bottom_plot.xaxis.label, bottom_plot.yaxis.label] +
     ---> 18              bottom_plot.get_xticklabels() + bottom_plot.get_yticklabels()):
@@ -1727,13 +1678,8 @@ for item in ([bottom_plot.xaxis.label, bottom_plot.yaxis.label] +
 
 
 
-![png](output_52_1.png)
+![png](output_58_1.png)
 
-
-
-```python
-
-```
 
 ## Subset Data of Dataframe
 
@@ -1753,15 +1699,15 @@ plt.show()
 ```
 
 
-![png](output_55_0.png)
+![png](output_60_0.png)
 
 
-#### Mega-function with everything related to the NYT API inside (work in progress)
+# Collecting Relevant News Articles from The New York Times
+###### Objective: Provide context to our time series plots and make historically accurate inferences about the data.
+The New York Times [Article Search API](https://developer.nytimes.com/) is capable of extracting decades worth of news records. We utilized the API in order to extract over 9,000 relevant articles, filtered by the four designated sectors. To visualize the data, we have developed an interactive [plot.ly](https://plot.ly/) timeline that allows users to navigate a 10-year period's worth of news headlines.
 
 
 ```python
-from nytimesarticle import articleAPI
-import time
 # OLD KEY (hit my limit): api = articleAPI('2679a66fe8df4740b754f98e52ad068c')
 api = articleAPI('e031fcaf03da4b3c949e505c4aa69a5b')
 def news_articles(sector,start,end,pages):
@@ -1835,9 +1781,9 @@ def news_articles(sector,start,end,pages):
 
 ###### Important Notes:
 **Asking for over 100 pages at once (necessary for a 10-year span) leads to unpredictable results.**
-* Ideally I would do something like: ```news_articles('Health Care',20060101,20170101,500)```, but the function simply stops running around 110~120 pages.
+* Ideally I would extract news articles using the following call: ```news_articles(<sector>,20060101,20170101,500)```, but the function stops running around 110~120 pages. This is likely due to usage restrictions imposed by the API.
 * My solution: Split the desired time frame, make separate calls, concatenate the results, save locally
-* Even with this work-around, it takes multiple tries to obtain the correct result.
+* Even with this work-around, it took multiple tries to obtain the correct result.
 
 
 ```python
@@ -1867,15 +1813,9 @@ all_news = pd.concat([healthcare_news,tech_news,energy_news,finance_news],ignore
 ```
 
 
-
-
-    "\nThe following code locally stores the news data. Please do not run this block!\n\nhealthcare_news1 = news_articles('Health Care',20060101,20091231,100)\nhealthcare_news2 = news_articles('Health Care',20100101,20131231,100)\nhealthcare_news3 = news_articles('Health Care',20140101,20161231,100)\nhealthcare_news = pd.concat([healthcare_news1,healthcare_news2,healthcare_news3],ignore_index=True)\nhealthcare_news['Sector'] = 'Health Care'\ntech_news = news_articles('Technology',100)\ntech_news['Sector'] = 'Technology'\nenergy_news1 = news_articles('Energy',20060101,20091231,100)\nenergy_news2 = news_articles('Energy',20100101,20131231,100)\nenergy_news3 = news_articles('Energy',20140101,20161231,100)\nenergy_news = pd.concat([energy_news1,energy_news2,energy_news3])\nenergy_news['Sector']='Energy'\nfinance_news1 = news_articles('Finance',20060101,20091231,100)\nfinance_news2 = news_articles('Finance',20100101,20131231,100)\nfinance_news3 = news_articles('Finance',20140101,20161231,100)\nfinance_news = pd.concat([finance_news1,finance_news2,finance_news3])\nfinance_news['Sector']='Finance'\nall_news = pd.concat([healthcare_news,tech_news,energy_news,finance_news],ignore_index=True)\n# all_news.to_pickle('news_df')\n"
-
-
-
-
 ```python
 all_news = pd.read_pickle('news_df')
+# all_news = all_news.reset_index()
 # Convert dates to index
 all_news['pub_date'] = pd.to_datetime(all_news.pub_date)
 all_news = all_news.set_index(all_news['pub_date'])
@@ -1924,19 +1864,17 @@ py.iplot(fig, filename='plotly_test')
 
 
 
+**The Timeline**
+
+The articles found in this tool are primarly from the Business category of the NYT API to ensure that the majority of the headlines have a high relevance to the stock market indicies we analyzed. At the same time, the news encompasses a wide array of contexts (legislation, judicial processes, company mergers and acquisitions, international events, R&D, and others). Even company-specifc headlines usually target the largest corporartions within their respective industries.
+
+
 # Analysis of Vocabulary in News Headlines
-Using the peak changes as the periods of interest, we analyzed the words contained in the news articles headlines for those months.
+Though the timeline is a cool concept, its scope is too wide to make any substantial conclusions. To further our analysis on average stock prices, we return to the volatility plots, specifically focusing on the shaded regions of highest volatiliy. From these time periods, we analyzed the text from snippets of the articles to calculate word frequencies. The top 100 words from each sector were selected and displayed on a word cloud.
 
-
-```python
-import string
-import nltk
-import regex as re
-from collections import Counter
-from nltk.corpus import stopwords
-from nltk.stem.porter import PorterStemmer
-import wordcloud
-```
+**We have visualized two periods where the volatility persisted for an exceptional length:**
+* 8/2008 to 11/2008
+* 12/2015 to 3/2016
 
 
 ```python
@@ -1950,174 +1888,60 @@ def remove_punctuation(text):
 
 
 ```python
-def CloudPlots(data):
-    text = data.lead_paragraph.str.cat(sep = ' ')
+# Extract text from a NYT news article URL:
+def url_text(url):
+    #doc = urlopen(url) 
+    # Must override HTTP redirects...
+    # SOURCE: http://stackoverflow.com/questions/9926023/handling-rss-redirects-with-python-urllib2
+    doc = urllib2.build_opener(urllib2.HTTPCookieProcessor).open(url)
+    soup = BeautifulSoup(doc, 'html.parser')
+    tags = soup.body.find_all('p',{"class":"story-body-text story-content"})
+    corpus = []
+    for tag in tags:
+        corpus.append(tag.text.strip())
+    corpus =' '.join(corpus)
+    return(corpus)
+# Create a corpus which contains text from all articles in the sector
+def sector_corpus(data):
+    '''
+    requires dataframe input (a subset by date of all_news).
+    Outputs one large string from every URL found in in the dataframe.
+    '''
+    links = data.web_url
+    full_sector = []
+    for link in links:
+        try:
+            full_article = url_text(link)
+        except:
+            full_article = ''
+        full_sector.append(full_article)
+    return(' '.join(full_sector))
+# Process the text and return a dictionary of term:frequency
+def BetterClouds(data):
+    '''
+    Applies the sector_corpus() function and returns the top 100 words from said corpus.
+    '''
+    text = sector_corpus(data)
     text = text.lower()
     text = remove_punctuation(text)
     tokens = tokenize(text)
-    filtered = [w for w in tokens if not w in stopwords.words('english')]
+    ignore = ['said','say','$','like','also','like','or','would']
+    filtered = [w for w in tokens if not w in stopwords.words('english')+ignore]
     filtered = stem(filtered)
     count = Counter(filtered)
     # top 100 words:
     top_words = dict(count.most_common(100))
-    cloud = wordcloud.WordCloud(background_color="white")
-    wc = cloud.generate_from_frequencies(top_words)
-    return(wc)
+    return(top_words)
+    #cloud = wordcloud.WordCloud(background_color="white")
+    #wc = cloud.generate_from_frequencies(top_words)
+    #return(wc)
 ```
-
-
-```python
-peak
-```
-
-
-
-
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Energy Changes</th>
-      <th>Finance Changes</th>
-      <th>Health Care Changes</th>
-      <th>Technology Changes</th>
-    </tr>
-    <tr>
-      <th>Timestamp</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>2008-08-10 10:10:10</th>
-      <td>0.271934</td>
-      <td>-0.048996</td>
-      <td>-0.069831</td>
-      <td>-0.033595</td>
-    </tr>
-    <tr>
-      <th>2008-10-10 10:10:10</th>
-      <td>0.483709</td>
-      <td>0.131039</td>
-      <td>0.320536</td>
-      <td>0.340418</td>
-    </tr>
-    <tr>
-      <th>2008-11-10 10:10:10</th>
-      <td>0.192015</td>
-      <td>0.068335</td>
-      <td>0.228251</td>
-      <td>0.217602</td>
-    </tr>
-    <tr>
-      <th>2009-03-10 10:10:10</th>
-      <td>0.176872</td>
-      <td>0.069709</td>
-      <td>0.133102</td>
-      <td>0.045064</td>
-    </tr>
-    <tr>
-      <th>2009-04-10 10:10:10</th>
-      <td>-0.167232</td>
-      <td>-0.116181</td>
-      <td>-0.137381</td>
-      <td>-0.224170</td>
-    </tr>
-    <tr>
-      <th>2009-12-10 10:10:10</th>
-      <td>-0.164439</td>
-      <td>-0.008523</td>
-      <td>-0.037643</td>
-      <td>-0.058359</td>
-    </tr>
-    <tr>
-      <th>2011-08-10 10:10:10</th>
-      <td>0.388879</td>
-      <td>0.103690</td>
-      <td>0.199786</td>
-      <td>0.153049</td>
-    </tr>
-    <tr>
-      <th>2014-12-10 10:10:10</th>
-      <td>0.316577</td>
-      <td>-0.002436</td>
-      <td>-0.008372</td>
-      <td>-0.014644</td>
-    </tr>
-    <tr>
-      <th>2015-12-10 10:10:10</th>
-      <td>0.186521</td>
-      <td>0.014430</td>
-      <td>0.022265</td>
-      <td>0.002597</td>
-    </tr>
-    <tr>
-      <th>2016-01-10 10:10:10</th>
-      <td>0.272163</td>
-      <td>0.045146</td>
-      <td>0.184826</td>
-      <td>0.120864</td>
-    </tr>
-    <tr>
-      <th>2016-02-10 10:10:10</th>
-      <td>0.188164</td>
-      <td>0.033947</td>
-      <td>0.142778</td>
-      <td>0.042605</td>
-    </tr>
-    <tr>
-      <th>2016-03-10 10:10:10</th>
-      <td>-0.259750</td>
-      <td>-0.042696</td>
-      <td>-0.047555</td>
-      <td>-0.056975</td>
-    </tr>
-    <tr>
-      <th>2016-09-10 10:10:10</th>
-      <td>-0.163973</td>
-      <td>-0.022106</td>
-      <td>-0.045245</td>
-      <td>-0.022420</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-**We have visualized two periods where the volatility persisted for an exceptional length:**
-* 8/2008 to 11/2008
-* 12/2015 to 3/2016
 
 
 ```python
 # (1) Subset the data:
 sample1 = all_news['2008-8-10 10:10:10':'2008-11-10 10:10:10']
 sample1_sector = sample1.groupby("Sector")  # a groupby object
-```
-
-
-```python
-fig = plt.figure()
-fig.suptitle("NYT Most Used Terms: Aug.2008 to Nov.2008", fontsize=30)
-for counter, sect in enumerate(all_news.Sector.unique()):
-    wc = CloudPlots(sample1_sector.get_group(sect))
-    ax = fig.add_subplot(2,2,counter+1)
-    ax.set_title("%s Sector" %sect,fontsize=23)
-    plt.imshow(wc)
-    plt.axis("off")
-```
-
-
-![png](output_71_0.png)
-
-
-
-```python
 # (2) Subset the data:
 sample2 = all_news['2015-12-10 10:10:10':'2016-03-10 10:10:10']
 sample2_sector = sample2.groupby("Sector")
@@ -2125,19 +1949,138 @@ sample2_sector = sample2.groupby("Sector")
 
 
 ```python
-fig = plt.figure()
-fig.suptitle("NYT Most Used Terms: Dec.2015 to Mar.2016", fontsize=30)
-for counter, sect in enumerate(all_news.Sector.unique()):
-    wc = CloudPlots(sample2_sector.get_group(sect))
+# List of dictionaries with term:frequency for each sector.
+# NOTE: This takes an eternity to run (scraping and processing hundreds of pages).
+# These lists have been saved locally as 'termfreq_2008' and 'termfreq_2016' respectively.
+
+# ORIGINAL CODE:
+# word_freq_list = [BetterClouds(sample1_sector.get_group(sect)) for sect in all_news.Sector.unique()]
+# word_freq_list2 =[BetterClouds(sample2_sector.get_group(sect)) for sect in all_news.Sector.unique()]
+
+# SAVE LISTS LOCALLY:
+#with open('termfreq_2008', 'wb') as fp:
+    #pickle.dump(word_freq_list, fp)
+#with open('termfreq_2016', 'wb') as fp:
+    #pickle.dump(word_freq_list2, fp)
+```
+
+
+```python
+# Load the already-processed results for quick access.
+with open ('termfreq_2008', 'rb') as fp:
+    word_freq_list = pickle.load(fp)
+with open ('termfreq_2016', 'rb') as fp:
+    word_freq_list2 = pickle.load(fp)
+```
+
+
+```python
+# Create frequency bar plots for the news articles found in Aug2008--Nov2008.
+#sns.set_style("dark")
+for counter,sector in enumerate(word_freq_list):
+    top10 = sorted(sector.items(), key=lambda kv: kv[1], reverse=True)[:10]
+    terms,frequency = zip(*top10)
+    current_sect = all_news.Sector.unique()[counter]
+    plt.figure(counter,figsize=(6,3))
+    freq_plot = sns.barplot(terms,frequency,palette='GnBu')
+    freq_plot.set_title("Top 10 %s Terms: Aug.2008 to Nov.2008"%current_sect)
+    for item in freq_plot.get_xticklabels():
+        item.set_rotation(45) 
+```
+
+
+![png](output_77_0.png)
+
+
+
+![png](output_77_1.png)
+
+
+
+![png](output_77_2.png)
+
+
+
+![png](output_77_3.png)
+
+
+
+```python
+# Support the frequency plot with a word cloud.
+fig = plt.figure(figsize=(20,10))
+fig.suptitle("NYT Most Used Terms: Aug.2008 to Nov.2008", fontsize=30)
+cloud = wordcloud.WordCloud(background_color="white")
+for counter, sect in enumerate(word_freq_list):
+    current_sect = all_news.Sector.unique()[counter]
+    wc = cloud.generate_from_frequencies(sect)
     ax = fig.add_subplot(2,2,counter+1)
-    ax.set_title("%s Sector" %sect,fontsize=23)
-    plt.imshow(wc)
+    ax.set_title("%s Sector" %current_sect,fontsize=20)
+    plt.imshow(wc,aspect='auto')
     plt.axis("off")
 ```
 
 
-![png](output_73_0.png)
+![png](output_78_0.png)
 
+
+###### Note: The plotted terms are stemmed to omit any possible duplicates in the analysis.
+Each sector has several key words that dominate their respective domains.  Because these articles were originally collected using certain search parameters for the New York Times API, some terms (i.e. the sector names themselves) are unfortunately overrepresented. However, this design did not prevent other terms from taking the number one spot on the frequency plots. For example, "bank" tops the Financial plots with almost triple the frequency of the second most common term. 
+
+Notably, there are very few instances of term overlap. For example, it is clear that "compani" (assumably "company") is a commonly used word in articles from all sectors. Aside from this instance, it can be argued that the news articles from each sector are unique and distinguishable in their vocabulary.
+
+
+```python
+# Create frequency bar plots for the news articles found in Dec2015--Mar2016.
+for counter,sector in enumerate(word_freq_list2):
+    top10 = sorted(sector.items(), key=lambda kv: kv[1], reverse=True)[:10]
+    terms,frequency = zip(*top10)
+    current_sect = all_news.Sector.unique()[counter]
+    plt.figure(counter,figsize=(6,3))
+    freq_plot = sns.barplot(terms,frequency,palette='GnBu')
+    freq_plot.set_title("Top 10 %s Terms: Dec.2015 to Mar.2016"%current_sect)
+    for item in freq_plot.get_xticklabels():
+        item.set_rotation(45) 
+```
+
+
+![png](output_80_0.png)
+
+
+
+![png](output_80_1.png)
+
+
+
+![png](output_80_2.png)
+
+
+
+![png](output_80_3.png)
+
+
+
+```python
+# Support the frequency plot with a word cloud.
+fig = plt.figure(figsize=(20,10))
+fig.suptitle("NYT Most Used Terms: Dec.2015 to Mar.2016", fontsize=30)
+cloud = wordcloud.WordCloud(background_color="white")
+for counter, sect in enumerate(word_freq_list2):
+    current_sect = all_news.Sector.unique()[counter]
+    wc = cloud.generate_from_frequencies(sect)
+    ax = fig.add_subplot(2,2,counter+1)
+    ax.set_title("%s Sector" %current_sect,fontsize=20)
+    plt.imshow(wc,aspect='auto')
+    plt.axis("off")
+```
+
+
+![png](output_81_0.png)
+
+
+###### Some observable differences exist between the first set (2008) and the second set (2015-2016). 
+Though the most used terms remain more or less the same, a noticable change in vocabulary occurs in the Technology sector. For one, more companies are named explicity, with Yahoo and Grindr taking spots in the top 10 (on the word cloud, companies like Google and Apple make an appearance as well). In addition, the terms on this 2015-2016 word cloud seem to exclude "business terms" such as "share","deal",and "market", all of which were in the top 10 of the 2008 articles. 
+
+Yet for the other sectors, many of the major terms remain the same; "compani" remains in the first or second spot for Health Care, Tech, and Energy, and "bank" continues to dominate Finance. Thus, the terms that convey the most information likely exist somewhere in between the top 10 to 100 unigrams collected, as words like "game" and "esport" become more popular the Tech industry, and entities like China make their way into financial news. Overall, though the difference here is only a few years, the changes in term frequency may correspond to a shift in industry interests.
 
 # Time Series Analysis
 
@@ -2191,7 +2134,7 @@ testE = delta_df["Energy Changes"]
 
 
 ```python
-E_log = np.log(avg_T.iloc[-365:,:]['Health Care'])
+E_log = np.log(med_T.iloc[-365:,:]['Health Care'])
 ```
 
 
@@ -2199,6 +2142,17 @@ E_log = np.log(avg_T.iloc[-365:,:]['Health Care'])
 E_log_diff = E_log - E_log.shift()
 plt.plot(E_log_diff)
 ```
+
+
+
+
+    [<matplotlib.lines.Line2D at 0x12fa63c10>]
+
+
+
+
+![png](output_91_1.png)
+
 
 
 ```python
@@ -2212,9 +2166,52 @@ plt.ylim([-0.15,0.15])
 ```
 
 
+
+
+    (-0.15, 0.15)
+
+
+
+
+![png](output_92_1.png)
+
+
+
 ```python
 E_log_diff.dropna(inplace=True)
 test_stationarity(E_log_diff)
+```
+
+    /Users/Homieknights/anaconda/envs/python2/lib/python2.7/site-packages/ipykernel/__main__.py:5: FutureWarning:
+    
+    pd.rolling_mean is deprecated for Series and will be removed in a future version, replace with 
+    	Series.rolling(window=12,center=False).mean()
+    
+    /Users/Homieknights/anaconda/envs/python2/lib/python2.7/site-packages/ipykernel/__main__.py:6: FutureWarning:
+    
+    pd.rolling_std is deprecated for Series and will be removed in a future version, replace with 
+    	Series.rolling(window=12,center=False).std()
+    
+
+
+
+![png](output_93_1.png)
+
+
+    Results of Dickey-Fuller Test:
+    Test Statistic                -1.783212e+01
+    p-value                        3.130286e-30
+    #Lags Used                     0.000000e+00
+    Number of Observations Used    3.630000e+02
+    Critical Value (5%)           -2.869535e+00
+    Critical Value (1%)           -3.448494e+00
+    Critical Value (10%)          -2.571029e+00
+    dtype: float64
+
+
+
+```python
+
 ```
 
 
