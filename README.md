@@ -454,7 +454,7 @@ plt.tight_layout()
 ```
 
 
-![png](output_31_0.png)
+![png](final_wed/output_31_0.png)
 
 
 
@@ -675,7 +675,7 @@ plt.tight_layout()
 ```
 
 
-![png](output_43_0.png)
+![png](final_wed/output_43_0.png)
 
 
 On a larger scale, looking at average changes per month, we see that range of changes now differ more between sectors.  Specifically, the range of changes for Technology is now between -3.0% and 4.0%.  This tells us that on a monthly average, changes are bigger than that of days.  Even looking at prices based on monthly averages, we see that Energy still has the biggest change from -3.0% to 5.0%.  
@@ -710,7 +710,7 @@ for shade in range(len(peak)):
 ```
 
 
-![png](output_45_0.png)
+![png](final_wed/output_45_0.png)
 
 
 ## 4.2 Best months to invest<a class="anchor" id="4b"></a>
@@ -763,7 +763,7 @@ plt.title('Sum of Price Changes for Each Month', fontsize=20)
 
 
 
-![png](output_50_1.png)
+![png](final_wed/output_50_1.png)
 
 
 It turns out overall, October (month 10) has the highest total sum of changes.  We see a generally lower sum from February to July.  As for specific sectors, there is a similar pattern across months.  Februrary has the lowest sum of changes per sector and overall.  This can be explained with a seasonal trend of variation.
@@ -1282,19 +1282,19 @@ for counter,sector in enumerate(word_freq_list):
 ```
 
 
-![png](output_69_0.png)
+![png](final_wed/output_69_0.png)
 
 
 
-![png](output_69_1.png)
+![png](final_wed/output_69_1.png)
 
 
 
-![png](output_69_2.png)
+![png](final_wed/output_69_2.png)
 
 
 
-![png](output_69_3.png)
+![png](final_wed/output_69_3.png)
 
 
 
@@ -1313,7 +1313,7 @@ for counter, sect in enumerate(word_freq_list):
 ```
 
 
-![png](output_70_0.png)
+![png](final_wed/output_70_0.png)
 
 
 ###### Note: The plotted terms are stemmed to omit any possible duplicates in the analysis.
@@ -1336,19 +1336,19 @@ for counter,sector in enumerate(word_freq_list2):
 ```
 
 
-![png](output_72_0.png)
+![png](final_wed/output_72_0.png)
 
 
 
-![png](output_72_1.png)
+![png](final_wed/output_72_1.png)
 
 
 
-![png](output_72_2.png)
+![png](final_wed/output_72_2.png)
 
 
 
-![png](output_72_3.png)
+![png](final_wed/output_72_3.png)
 
 
 
@@ -1367,7 +1367,7 @@ for counter, sect in enumerate(word_freq_list2):
 ```
 
 
-![png](output_73_0.png)
+![png](final_wed/output_73_0.png)
 
 
 ###### Some observable differences exist between the first set (2008) and the second set (2015-2016). 
@@ -1441,7 +1441,7 @@ plt.plot(E_log_diff)
 
 
 
-![png](output_81_1.png)
+![png](final_wed/output_81_1.png)
 
 
 
@@ -1463,7 +1463,7 @@ plt.ylim([-0.15,0.15])
 
 
 
-![png](output_82_1.png)
+![png](final_wed/output_82_1.png)
 
 
 
@@ -1475,7 +1475,7 @@ test_stationarity(E_log_diff)
 ```
 
 
-![png](output_83_0.png)
+![png](final_wed/output_83_0.png)
 
 
     Results of Dickey-Fuller Test:
