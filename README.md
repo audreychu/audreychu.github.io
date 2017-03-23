@@ -1,6 +1,6 @@
 # ![](http://logok.org/wp-content/uploads/2014/10/Nasdaq-logo-2014.png =100x20)
 
-<img src="https://github.com/favicon.ico" width="48">
+<img src="http://logok.org/wp-content/uploads/2014/10/Nasdaq-logo-2014" width="20">
 # Stock Indices
 
 ----
