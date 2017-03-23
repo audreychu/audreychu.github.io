@@ -1,4 +1,5 @@
-<img src="http://logok.org/wp-content/uploads/2014/10/Nasdaq-logo-2014.png" width="35">
+<img src="http://logok.org/wp-content/uploads/2014/10/Nasdaq-logo-2014.png" width="60">
+
 # Stock Indices
 
 ----
