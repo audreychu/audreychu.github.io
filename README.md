@@ -1,8 +1,7 @@
-# STAT141B:Final Project
+<img src="http://logok.org/wp-content/uploads/2014/10/Nasdaq-logo-2014.png", style="width: 30px;", align="left"> 
+# Stock Indices
+
 ----
-
-
-# NASDAQ Stock Indices
 
 #### March 2017
 <u>Statistics 141B</u>: Data and Web Technologies<br>
