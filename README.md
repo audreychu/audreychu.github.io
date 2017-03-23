@@ -17,7 +17,7 @@ To study NASDAQ stock prices for the technology, finance, health care, and energ
 - Which month for which sector has the least volatility?
 
 
-```python
+```python{echo=F}
 import sys
 import csv
 import json
