@@ -354,40 +354,6 @@ The formulas above measure the differences but can lead to differing conclusions
 where $price_t$ represents the median closing price at time t for a sector.  Log differences are advantageous because they can be interpreted as the percentage change in a stock price and they do not depend on the fraction denominator.
 
 
-```python
-plot_cols = list(delta_df)
-
-# 2 axes for 2 subplots
-fig, axes = plt.subplots(4,1, figsize=(10,7), sharex=True)
-#delta_df[plot_cols].plot(subplots=True, ax=axes)
-delta_df[plot_cols].plot(subplots=True, ax=axes)
-#plt.ylim([-0.20,0.150])
-
-
-for ax, col in zip(axes, plot_cols):
-    # add titles
-    ax.set_title('Median Closing Prices for ' + col)
-
-    
-    # lets add horizontal zero lines
-    ax.axhline(0, color='k', linestyle='-', linewidth=1)
-    
-    # add axis labels
-    ax.set_ylabel('Price Change (%)')
-    ax.set_xlabel('Year')
-    
-    # upgrade axis tick labels
-    yticks = ax.get_yticks()
-    ax.set_yticklabels(['{:3.2}%'.format(x*10) for x in yticks]);
-    
-    # add cool legend
-    ax.legend(loc='upper left', fontsize=11, frameon=True).get_frame().set_edgecolor('blue')  
-
-plt.tight_layout()
-
-```
-
-
 ![png](final_wed/output_31_0.png)
 
 
@@ -507,39 +473,6 @@ delta_avg['Timestamp'] = col
 
 ```python
 delta_avg = delta_avg.set_index('Timestamp')
-```
-
-
-```python
-plot_cols = list(delta_avg)
-
-# 2 axes for 2 subplots
-fig, axes = plt.subplots(4,1, figsize=(10,7), sharex=True)
-#delta_df[plot_cols].plot(subplots=True, ax=axes)
-delta_avg[plot_cols].plot(subplots=True, ax=axes)
-#plt.ylim([-0.20,0.150])
-
-
-for ax, col in zip(axes, plot_cols):
-    # add titles
-    ax.set_title('Monthly Closing Prices for ' + col)
-
-    
-    # lets add horizontal zero lines
-    ax.axhline(0, color='k', linestyle='-', linewidth=1)
-    
-    # add axis labels
-    ax.set_ylabel('Price Change (%)')
-    ax.set_xlabel('Year')
-    
-    # upgrade axis tick labels
-    yticks = ax.get_yticks()
-    ax.set_yticklabels(['{:3.2}%'.format(x*10) for x in yticks]);
-    
-    # add cool legend
-    ax.legend(loc='upper left', fontsize=11, frameon=True).get_frame().set_edgecolor('blue')  
-
-plt.tight_layout()
 ```
 
 
