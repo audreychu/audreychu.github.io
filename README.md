@@ -89,7 +89,7 @@ def price2(ticker):
 
 We begin by extracting our main dataset, which comes from the Yahoo Finance API. We extracted stock closing prices for each stock currently in the Nasdaq. We do this by supplying ```requests``` with a YQL query for the historical data table of the API. Not every stock currently in the Nasdaq was around from when we started extracting in 2006, so their values are _NA_ until they IPO. The weights of these additions, when they happen, are not believed to be of substantial impact to our analysis of price because we aggregate over 4 sectors across roughly 1,700 stocks. If you look closely at the function, it iterates by year because if you request over 364 values, there is an undocumented error where you get returned an empty JSON object.
 
-A List of companies on NASDAQ can be found here: http://www.nasdaq.com/screening/company-list.aspx
+A List of companies on NASDAQ can be found <a href="http://www.nasdaq.com/screening/company-list.aspx">here.)</a> 
 
 
 ```python
