@@ -419,47 +419,6 @@ peak = delta_avg[(abs(delta_avg) >= 0.163191).any(axis=1)]
 ```
 
 
-```python
-plot_cols = list(delta_avg)
-
-fig, axes = plt.subplots(4,1, figsize=(10,7), sharex=True)
-delta_avg[plot_cols].plot(subplots=True, ax=axes)
-
-for shade in range(len(peak)):
-    peak_bgn = peak.index[shade]
-    if peak.index[shade].month == 12:
-        year = peak.index[shade].year+1
-        end = (year, 1, 10, 10, 10, 10)
-        dt_obj = datetime(*end[0:6])
-        peak_end = pd.to_datetime(dt_obj)
-        
-    else:
-        mo = peak.index[shade].month + 1
-        end = (peak.index[shade].year, mo, 10, 10, 10, 10)
-        dt_obj = datetime(*end[0:6])
-        peak_end = pd.to_datetime(dt_obj)
-        
-    for ax in axes:
-        ax.axvspan(peak_bgn, peak_end, color=sns.xkcd_rgb['grey'], alpha=.5)
-    
-        ax.axhline(0, color='k', linestyle='-', linewidth=1)
-
-
-for ax, col in zip(axes, plot_cols):
-    ax.set_title('Monthly Closing Prices for ' + col)
-    
-    ax.set_ylabel('Price Change (%)')
-    ax.set_xlabel('Year')
-    
-    yticks = ax.get_yticks()
-    ax.set_yticklabels(['{:3.2}%'.format(x*10) for x in yticks]);
-    
-    ax.legend(loc='upper left', fontsize=11, frameon=True).get_frame().set_edgecolor('blue')  
-
-plt.tight_layout()     
-```
-
-
 ![png](final_wed/output_43_0.png)
 
 
@@ -497,7 +456,7 @@ sns.set_context({"figure.figsize": (20, 10)})
 
 It turns out overall, October (month 10) has the highest total sum of changes.  We see a generally lower sum from February to July.  As for specific sectors, there is a similar pattern across months.  Februrary has the lowest sum of changes per sector and overall.  This can be explained with a seasonal trend of variation.
 
-> "The aggressive selling of stock loser The aggressive selling of stock losers generally sets up the market for a yearly low in the October time period.  Historically, October has a greater percentage of correction and bear-market bottoms than any other month."   - [Money US News](http://money.usnews.com/money/personal-finance/mutual-funds/articles/2015/10/16/why-november-through-april-is-the-best-6-months-to-invest)
+> "The aggressive selling of stock losers generally sets up the market for a yearly low in the October time period.  Historically, October has a greater percentage of correction and bear-market bottoms than any other month."   - [Money US News](http://money.usnews.com/money/personal-finance/mutual-funds/articles/2015/10/16/why-november-through-april-is-the-best-6-months-to-invest)
 
 Additionally, we see that the next highest total changes occur during January (month 1) and August (month 8), which are typically the fourth or first quarter.  This can be explained with workers having a little extra money to invest in.  Year-end bonuses tend to go right into the stock market, which increases cash inflows, stock buying and thus drives the market higher.
 
