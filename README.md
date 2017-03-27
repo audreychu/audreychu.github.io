@@ -233,11 +233,6 @@ Above is the ```.head()``` of our final dataframe.  Indexed by date from 2006 to
 ## 3.1 Interactive Price Plot on Energy<a class="anchor" id="3a"></a>
 
 
-```python
-ts_slider(med_T.Energy,"Energy")
-```
-
-
 <iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="https://plot.ly/~audchu/126.embed" height="525px" width="100%"></iframe>
 
 
@@ -247,51 +242,6 @@ Above is one example of an interactive time series slider plot for the Energy se
 For that reason, let's try some more plots.
 
 ## 3.2 Prices of all sectors <a class="anchor" id="3b"></a>
-
-
-```python
-Energy = go.Scatter(x=med_T.index,y=med_T.Energy, name='Energy')
-Finance = go.Scatter(x=med_T.index,y=med_T.Finance, name='Finance')
-HealthCare = go.Scatter(x=med_T.index,y=med_T['Health Care'], name='Health Care')
-Technology = go.Scatter(x=med_T.index,y=med_T.Technology, name='Technology')
-
-
-data = [Energy, Finance, HealthCare, Technology]
-layout = dict(
-    title='Median Closing Prices: Time series with Range Slider',
-    xaxis=dict(
-        rangeselector=dict(
-            buttons=list([
-                dict(count=1,
-                    label='1m',
-                    step='month',
-                    stepmode='backward'),
-                dict(count=6,
-                    label='6m',
-                    step='month',
-                    stepmode='backward'),
-                dict(count=1,
-                    label='YTD',
-                    step='year',
-                    stepmode='todate'),
-                dict(count=1,
-                    label='1y',
-                    step='year',
-                    stepmode='backward'),
-                dict(step='all')
-            ])
-        ),
-        rangeslider=dict(),
-        type='date'
-    )
-)
-
-fig = dict(data=data, layout=layout)
-py.iplot(fig)
-```
-
-
-
 
 <iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="https://plot.ly/~audchu/128.embed" height="525px" width="100%"></iframe>
 
@@ -539,35 +489,6 @@ months["total"] = months.sum(axis=1)
 sns.set_style("white")
 sns.set_context({"figure.figsize": (20, 10)})
 ```
-
-
-```python
-sns.barplot(x = months.index, y = months.total, color = "red")
-health_plot = sns.barplot(x = months.index, y = months['Health Care Changes']+months['Energy Changes']+months['Finance Changes'], color = "yellow")
-fin_plot = sns.barplot(x = months.index, y = months['Finance Changes']+months['Energy Changes'], color = "blue")
-eng_plot = sns.barplot(x = months.index, y = months['Energy Changes'], color = "green")
-
-tech_bar = plt.Rectangle((0,0),1,1,fc="red", edgecolor = 'none')
-health_bar = plt.Rectangle((0,0),1,1,fc='yellow',  edgecolor = 'none')
-fin_bar = plt.Rectangle((0,0),1,1,fc='blue',  edgecolor = 'none')
-eng_bar = plt.Rectangle((0,0),1,1,fc='green',  edgecolor = 'none')
-
-l = plt.legend([tech_bar, health_bar, fin_bar, eng_bar], ['Tech', 'Health', 'Finance', 'Energy'], loc=0, ncol = 4, prop={'size':16})
-l.draw_frame(False)
-
-#Optional code - Make plot look nicer
-sns.despine(left=True)
-eng_plot.set_ylabel("Total Absolute Closing Price Changs", fontsize=18)
-eng_plot.set_xlabel("Months", fontsize=18)
-
-plt.title('Sum of Price Changes for Each Month', fontsize=20)
-```
-
-
-
-
-    <matplotlib.text.Text at 0x1266e4090>
-
 
 
 
