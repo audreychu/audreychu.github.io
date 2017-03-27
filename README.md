@@ -1,7 +1,7 @@
 <h1>NASDAQ Stock Indices</h1>
 
 <!-- Place this tag where you want the button to render. -->
-<a href="https://audreychu.github.io/projects/cleanproject.html" target="_blank"><img src="https://cdn1.iconfinder.com/data/icons/free-98-icons/32/code-128.png" style="width:25px;height:25px;"/></a>  <a class="github-button" href="https://github.com/weiwang0531/stock-index/" data-icon="octicon-repo-forked" data-style="mega" data-count-href="/weiwang0531/stock-index/network" data-count-api="/repos/weiwang0531/stock-index#forks_count" data-count-aria-label="# forks on GitHub" aria-label="Fork weiwang0531/stock-index on GitHub">Fork</a>
+<a href="https://audreychu.github.io/projects/cleanproject.html" target="_blank"><img src="https://cdn0.iconfinder.com/data/icons/math-business-icon-set/93/1_14-128.png" style="width:25px;height:25px;"/></a>    <a class="github-button" href="https://github.com/weiwang0531/stock-index/" data-icon="octicon-repo-forked" data-style="mega" data-count-href="/weiwang0531/stock-index/network" data-count-api="/repos/weiwang0531/stock-index#forks_count" data-count-aria-label="# forks on GitHub" aria-label="Fork weiwang0531/stock-index on GitHub">Fork</a>
 
 <!-- Place this tag in your head or just before your close body tag. -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>
