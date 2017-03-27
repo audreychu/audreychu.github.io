@@ -89,7 +89,7 @@ def price2(ticker):
 
 We begin by extracting our main dataset, which comes from the Yahoo Finance API. We extracted stock closing prices for each stock currently in the Nasdaq. We do this by supplying ```requests``` with a YQL query for the historical data table of the API. Not every stock currently in the Nasdaq was around from when we started extracting in 2006, so their values are _NA_ until they IPO. The weights of these additions, when they happen, are not believed to be of substantial impact to our analysis of price because we aggregate over 4 sectors across roughly 1,700 stocks. If you look closely at the function, it iterates by year because if you request over 364 values, there is an undocumented error where you get returned an empty JSON object.
 
-A List of companies on NASDAQ can be found <a href="http://www.nasdaq.com/screening/company-list.aspx">here.)</a> 
+The list of companies on NASDAQ can be found <a href="http://www.nasdaq.com/screening/company-list.aspx">here</a>. 
 
 
 ```python
@@ -305,14 +305,14 @@ delta_df.columns = map(lambda name: '{} Changes'.format(name),med_T.columns)
 ```
 
 A more accurate representation to measure trends or changes in sector is to take the difference of closing prices for each day.  This will show the percentage change in price relative to the previous day.  Mathematically this is,<br>
-
+```tex
 <center>$growth_t = \frac{price_{t+1} - price_t}{price_t}$   or   $increase_t = \frac{price_{t} - price_{t-1}}{price_t}$</center>
 
 The formulas above measure the differences but can lead to differing conclusions.  The most efficient way to model the growth of the stock is through log differences,
 <center>$change_t = log(price_t) - log(price_{t-1})$</center>
 
 where $price_t$ represents the median closing price at time t for a sector.  Log differences are advantageous because they can be interpreted as the percentage change in a stock price and they do not depend on the fraction denominator.
-
+```
 
 ![png](final_wed/output_31_0.png)
 
