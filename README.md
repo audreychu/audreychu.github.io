@@ -6,6 +6,14 @@
 <!-- Place this tag in your head or just before your close body tag. -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 
+
+*March 2017*
+*Statistics 141B: Data and Web Technologies*
+*Contributors: Jeremy Weidner, Weizhou Wang, Yuji Mori, and Audrey Chu*
+
+
+---
+
 ### Abstract
 
 To study NASDAQ stock prices for the technology, finance, health care, and energy industry sectors across time.  With the application of python and utilization of the Yahoo! Finance API, Yahoo Query Language (YQL), and New York Times API, we will gather and clean out a dataset for a time period of ten years for approximately 1770 companies.  Our data will incorporate the closing prices for each day and then average these prices for each respective sector.  In analyzing the stock prices, we will use interactive data visualization as well as attempt to create a time series ARIMA (Autoregressive Integrated Moving Average) model.
@@ -1112,8 +1120,3 @@ test_stationarity(E_log_diff)
 ```python
 
 ```
-
-#### March 2017
-<u>Statistics 141B</u>: Data and Web Technologies<br>
-<u>Contributors</u>: Jeremy Weidner, Weizhou Wang, Audrey Chu, and Yuji Mori
-
