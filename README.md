@@ -7,8 +7,8 @@
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 
 
-*March 2017*
-*Statistics 141B: Data and Web Technologies*
+*March 2017 -- Statistics 141B: Data and Web Technologies*
+<br>
 *Contributors: Jeremy Weidner, Weizhou Wang, Yuji Mori, and Audrey Chu*
 
 
