@@ -394,10 +394,6 @@ delta_avg = delta_avg.set_index('Timestamp')
 ```
 
 
-![png](final_wed/output_40_0.png)
-
-
-
 ```python
 (abs(delta_avg).iloc[1:,:].quantile(q=0.90, axis=0))
 ```
